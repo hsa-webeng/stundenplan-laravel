@@ -1,0 +1,59 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "8000:80"
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    volumes:
+      - .:/var/www/html:rw
+    networks:
+      - laravel
+    secrets:
+      - db-password
+
+    # if /var/www/html/vendor is empty, copy /var/www/vendor to /var/www/html/vendor
+    # start laravel
+    command: >
+      sh -c "if [ -z \"$(ls -A /var/www/html/vendor)\" ]; then cp -r /var/www/vendor /var/www/html; fi;
+              supervisord -c supervisord.conf;"
+
+
+  db:
+    image: mariadb
+    restart: unless-stopped
+    user: root
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      - MARIADB_ROOT_PASSWORD_FILE=/run/secrets/db-password
+      - MARIADB_DATABASE=dockertestdb
+    ports:
+      - "9002:3306"
+    networks:
+      - laravel
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      - PMA_HOST=db
+
+networks:
+  laravel:
+    driver: bridge
+
+volumes:
+  db-data:
+secrets:
+  db-password:
+    file: db-password.txt
