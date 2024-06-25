@@ -48,6 +48,22 @@ services:
     environment:
       - PMA_HOST=db
 
+  node:
+    build:
+      context: .
+      target: node-dev
+    user: node
+    volumes:
+      - .:/var/www/html:rw
+    networks:
+        - laravel
+    ports:
+        - "5173:5173"
+    # if /var/www/html/node_modules is empty, copy /var/www/node_modules to /var/www/html/node_modules
+    command: >
+      sh -c "if [ -z \"$(ls -A /var/www/html/node_modules)\" ]; then cp -r /var/www/node_modules /var/www/html; fi;
+                npm run dev;"
+
 networks:
   laravel:
     driver: bridge

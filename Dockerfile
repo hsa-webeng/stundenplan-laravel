@@ -1,5 +1,18 @@
 # syntax=docker/dockerfile:1
 
+FROM node:20-alpine as node-dev
+
+WORKDIR /var/www/html
+
+# copy package.json and package-lock.json to the working directory
+COPY package.json package-lock.json ./
+
+# install packages from package.json
+RUN npm install
+
+# move the node_modules to the parent directory
+RUN mv node_modules /var/www
+
 FROM php:8.3-apache AS final
 
 # Set working directory

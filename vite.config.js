@@ -11,4 +11,8 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        port: 5173,
+        host: '0.0.0.0'  // to expose the server to external connections
+    }
 });
