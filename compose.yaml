@@ -9,20 +9,23 @@ services:
     environment:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
+    user: wwwuser
     volumes:
       - .:/var/www/html:rw
     networks:
       - laravel
 
     # if /var/www/html/vendor is empty, copy /var/www/vendor to /var/www/html/vendor
-    # delete all log files in /var/www/html/storage/logs
+    # delete all log files in /storage/logs
     # create .env file if not exists and generate key (only if .env file does not exist)
+    # make db-migration-wait.sh executable
     # start laravel with supervisord
     command: >
       sh -c "if [ -z \"$(ls -A /var/www/html/vendor)\" ]; then cp -r /var/www/vendor /var/www/html; fi;
               rm -rf /var/www/html/storage/logs/*.log;
               if [ ! -f /var/www/html/.env ]; then cp /var/www/html/.env.example /var/www/html/.env
                 php artisan key:generate; fi;
+              chmod +x /var/www/html/db-migration-wait.sh;
               supervisord -c supervisord.conf;"
 
 

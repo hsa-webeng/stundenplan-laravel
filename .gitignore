@@ -18,6 +18,5 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-db-password.txt
 supervisord.log
 supervisord.pid
