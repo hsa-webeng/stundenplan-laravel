@@ -28,7 +28,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    supervisor
+    supervisor \
+    netcat-openbsd
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -47,8 +48,13 @@ RUN --mount=type=bind,source=composer.json,target=composer.json \
     --mount=type=cache,target=/tmp/cache \
     composer install --no-interaction
 
-# copy the vendor folder to parent directory
-RUN cp -r /var/www/html/vendor /var/www
+# move the vendor folder to parent directory
+RUN mv vendor /var/www
+
+# set document root to public folder
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # Set the user to run the container
 RUN chown=www-data:www-data . /var/www

@@ -13,27 +13,30 @@ services:
       - .:/var/www/html:rw
     networks:
       - laravel
-    secrets:
-      - db-password
 
     # if /var/www/html/vendor is empty, copy /var/www/vendor to /var/www/html/vendor
-    # start laravel
+    # delete all log files in /var/www/html/storage/logs
+    # create .env file if not exists and generate key (only if .env file does not exist)
+    # start laravel with supervisord
     command: >
       sh -c "if [ -z \"$(ls -A /var/www/html/vendor)\" ]; then cp -r /var/www/vendor /var/www/html; fi;
+              rm -rf /var/www/html/storage/logs/*.log;
+              if [ ! -f /var/www/html/.env ]; then cp /var/www/html/.env.example /var/www/html/.env
+                php artisan key:generate; fi;
               supervisord -c supervisord.conf;"
 
 
-  db:
+  mariadb:
     image: mariadb
     restart: unless-stopped
     user: root
-    secrets:
-      - db-password
     volumes:
       - db-data:/var/lib/mysql
     environment:
-      - MARIADB_ROOT_PASSWORD_FILE=/run/secrets/db-password
-      - MARIADB_DATABASE=dockertestdb
+      - MYSQL_ROOT_PASSWORD=dockertestrootpassword
+      - MYSQL_DATABASE=dockertestdb
+      - MYSQL_USER=dockertestuser
+      - MYSQL_PASSWORD=dockertestpassword
     ports:
       - "9002:3306"
     networks:
@@ -44,9 +47,12 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - db
+      - mariadb
     environment:
-      - PMA_HOST=db
+      - PMA_HOST=mariadb
+      - PMA_PORT=3306
+    networks:
+        - laravel
 
   node:
     build:
@@ -70,6 +76,3 @@ networks:
 
 volumes:
   db-data:
-secrets:
-  db-password:
-    file: db-password.txt
