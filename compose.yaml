@@ -37,9 +37,9 @@ services:
       - db-data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=dockertestrootpassword
-      - MYSQL_DATABASE=dockertestdb
-      - MYSQL_USER=dockertestuser
-      - MYSQL_PASSWORD=dockertestpassword
+      - MYSQL_DATABASE=stundenplaner-db
+      - MYSQL_USER=stundenplaner
+      - MYSQL_PASSWORD=stundenplanerpassword
     ports:
       - "9002:3306"
     networks:
