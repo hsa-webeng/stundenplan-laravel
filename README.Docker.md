@@ -41,7 +41,7 @@ Take note of the container ID of the `app` container (e.g. `docker-test-app`).\
 Then run:\
 `docker exec -it [CONTAINERID] bash` inside the terminal.
 
-From here you can run Laravel commands like:\
+From here you can run Laravel commands like:
 
 ### Setting up new Models ###
 

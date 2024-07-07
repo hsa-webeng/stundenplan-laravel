@@ -40,8 +40,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy the rest of the app files
 COPY . /var/www/html
 
-# remove vendor folder if exists
+# remove vendor & node_modules folder
 RUN rm -rf /var/www/html/vendor
+RUN rm -rf /var/www/html/node_modules
 
 RUN --mount=type=bind,source=composer.json,target=composer.json \
     --mount=type=bind,source=composer.lock,target=composer.lock \
@@ -50,6 +51,10 @@ RUN --mount=type=bind,source=composer.json,target=composer.json \
 
 # move the vendor folder to parent directory
 RUN mv vendor /var/www
+
+# delete all contents of the html folder (will be mounted as volume)
+RUN rm -rf /var/www/html/*
+RUN mkdir -p /var/www/html/public
 
 # set document root to public folder
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public

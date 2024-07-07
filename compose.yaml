@@ -14,20 +14,10 @@ services:
       - .:/var/www/html:rw
     networks:
       - laravel
-
-    # if /var/www/html/vendor is empty, copy /var/www/vendor to /var/www/html/vendor
-    # delete all log files in /storage/logs
-    # create .env file if not exists and generate key (only if .env file does not exist)
-    # make db-migration-wait.sh executable
-    # start laravel with supervisord
+    # make startup-laravel.sh executable & run it
     command: >
-      sh -c "if [ -z \"$(ls -A /var/www/html/vendor)\" ]; then cp -r /var/www/vendor /var/www/html; fi;
-              rm -rf /var/www/html/storage/logs/*.log;
-              if [ ! -f /var/www/html/.env ]; then cp /var/www/html/.env.example /var/www/html/.env
-                php artisan key:generate; fi;
-              chmod +x /var/www/html/db-migration-wait.sh;
-              supervisord -c supervisord.conf;"
-
+      sh -c "chmod +x /var/www/html/startup_laravel.sh;
+             /var/www/html/startup_laravel.sh;"
 
   mariadb:
     image: mariadb
@@ -68,10 +58,10 @@ services:
         - laravel
     ports:
         - "5173:5173"
-    # if /var/www/html/node_modules is empty, copy /var/www/node_modules to /var/www/html/node_modules
+    # make startup-node.sh executable & run it
     command: >
-      sh -c "if [ -z \"$(ls -A /var/www/html/node_modules)\" ]; then cp -r /var/www/node_modules /var/www/html; fi;
-                npm run dev;"
+      sh -c "chmod +x /var/www/html/startup_node.sh;
+             /var/www/html/startup_node.sh;"
 
 networks:
   laravel:
