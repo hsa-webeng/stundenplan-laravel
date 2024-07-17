@@ -6,17 +6,18 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "laravel/framework": "^11.14",
+        "laravel/framework": "^11.16",
         "laravel/tinker": "^2.9"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.1",
         "fakerphp/faker": "^1.23.1",
-        "laravel/breeze": "^2.1.1",
-        "laravel/pint": "^1.16.1",
-        "laravel/sail": "^1.30.1",
+        "laravel/breeze": "^2.1.2",
+        "laravel/pint": "^1.16.2",
+        "laravel/sail": "^1.30.2",
         "mockery/mockery": "^1.6.12",
-        "nunomaduro/collision": "^8.1.1",
-        "phpunit/phpunit": "^11.2.6"
+        "nunomaduro/collision": "^8.3.0",
+        "phpunit/phpunit": "^11.2.7"
     },
     "autoload": {
         "psr-4": {
@@ -39,7 +40,10 @@
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
         "post-root-package-install": [
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:meta",
+            "@php artisan ide-helper:models --write-mixin"
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi",
