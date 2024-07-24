@@ -10,6 +10,8 @@ class Studiengang extends Model
 {
     use HasFactory;
 
+    protected $table = 'studiengänge';
+
     public function kurse(): HasMany
     {
         return $this->hasMany(Kurs::class);

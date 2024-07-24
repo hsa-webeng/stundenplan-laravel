@@ -11,6 +11,8 @@ class Kurs extends Model
 {
     use HasFactory;
 
+    protected $table = 'kurse';
+
     public function studiengang(): BelongsTo
     {
         return $this->belongsTo(Studiengang::class, 'stdg_id');

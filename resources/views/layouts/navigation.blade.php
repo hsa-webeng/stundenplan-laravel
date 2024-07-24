@@ -18,13 +18,13 @@
                     </x-nav-link>
                     @if (Auth::user()->admin)
                         {{-- only show link if user is admin, only admins should be able to create new users, lecturers & courses --}}
-                        <x-nav-link>
+                        <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                             {{ __('Benutzer & Dozenten') }}
                         </x-nav-link>
-                        <x-nav-link>
+                        <x-nav-link :href="route('kurse.index')" :active="request()->routeIs('kurse.index')">
                             {{ __('Kurse') }}
                         </x-nav-link>
-                        <x-nav-link>
+                        <x-nav-link :href="route('studiengänge.index')" :active="request()->routeIs('studiengänge.index')">
                             {{ __('Studiengänge') }}
                         </x-nav-link>
                     @endif
@@ -89,15 +89,15 @@
 
             @if (Auth::user()->admin)
                 {{-- only show link if user is admin, only admins should be able to create new users, lecturers & courses --}}
-                <x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                     {{ __('Benutzer & Dozenten') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('kurse.index')" :active="request()->routeIs('kurse.index')">
                     {{ __('Kurse') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('studiengänge.index')" :active="request()->routeIs('studiengänge.index')">
                     {{ __('Studiengänge') }}
                 </x-responsive-nav-link>
             @endif

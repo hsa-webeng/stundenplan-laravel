@@ -10,6 +10,8 @@ class Stunde extends Model
 {
     use HasFactory;
 
+    protected $table = 'stunden';
+
     public function kurs(): BelongsTo
     {
         return $this->belongsTo(Kurs::class, 'kurs_id');

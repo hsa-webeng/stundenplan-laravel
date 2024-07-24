@@ -10,6 +10,8 @@ class BlockierteZeit extends Model
 {
     use HasFactory;
 
+    protected $table = 'blockierte_zeiten';
+
     public function dozent(): BelongsTo
     {
         return $this->belongsTo(Dozent::class, 'doz_id');
