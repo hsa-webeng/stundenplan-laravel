@@ -11,6 +11,8 @@ class Dozent extends Model
 {
     use HasFactory;
 
+    protected $table = 'dozenten';
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
