@@ -10,11 +10,10 @@
 
             @foreach ($dozenten as $dozent)
                 <details>
-                    <summary>{{ $dozent->dozent_nachname }} {{ $dozent->dozent_vorname }}</summary>
+                    <summary>{{ $dozent->dozent_nachname }}, {{ $dozent->dozent_vorname }}</summary>
                     <div>
-                        @if ($dozent->kurse->isEmpty())
+                        @if (is_null($dozent->kurse))
                             <p>Keine Fächer eingetragen.</p>
-                            <button>Fach hinzuf&uuml;gen</button>
                         @else
                             <ul>
                                 @foreach ($dozent->kurse as $kurs)
@@ -22,13 +21,13 @@
                                         <strong>Kurs Name:</strong> {{ $kurs->kurs_name }}<br>
                                         <strong>Semester:</strong> {{ $kurs->semester }}<br>
                                         <strong>SWS:</strong> {{ $kurs->sws }}<br>
-                                        <strong>Studiengang:</strong> {{ $kurs->stdg_id }}
+                                        <strong>Studiengang:</strong> {{ $kurs->kurs_name }}<br>
                                         <button>Fach l&ouml;schen</button>
                                     </li>
                                 @endforeach
                             </ul>
-                            <button href="#">Fach hinzuf&uuml;gen</button>
                         @endif
+                        <a href="#">&#x2795; Fach hinzuf&uuml;gen</a>
                     </div>
                 </details>
             @endforeach

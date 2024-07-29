@@ -23,11 +23,11 @@
                             <p>{{ $user->email }}</p>
                         </td>
                         <td>
-                            @if ($dozent->id->isEmpty())
-                                <button href="#">Neuer Dozent</button>
+                            @if (is_null($user->dozent))
+                                <a href="#">&#x2795; Neuer Dozent</a>
                             @else
-                                <p>{{ $user->dozent ? $user->dozent->dozent_nachname}} {{ $user->dozent ? $user->dozent->dozent_vorname}}</p>
-                                <p>{{ $user->dozent ? $user->dozent->plan_abgegeben}}</p>
+                                <p>{{ $user->dozent->dozent_nachname }}, {{ $user->dozent->dozent_vorname}}</p>
+                                <p>{{ $user->dozent->plan_abgegeben }}</p>
                                 <button>Dozent löschen</button>
                             @endif
                         </td>
@@ -35,7 +35,7 @@
                 @endforeach
                 </tbody>
             </table>
-            <button href="#">&#x2795; Neuer User</button>
+            <a href="#">&#x2795; Neuer User</a>
 
         </div>
     </div>

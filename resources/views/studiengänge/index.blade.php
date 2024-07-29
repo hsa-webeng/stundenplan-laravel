@@ -12,15 +12,19 @@
                 <thead>
                 <tr>
                     <th>Studieng&auml;nge</th>
+                    <th>Kürzel</th>
                     <th>Bearbeiten</th>
-                    <th>L&ouml;schen</th>
+                    <th>Löschen</th>
                 </tr>
                 </thead>
                 <tbody>
-                    @foreach($studiengänge as $studiengang)
+                    @foreach($studiengaenge as $studiengang)
                         <tr>
+                            <td class="test_klasse">
+                                {{ $studiengang->stdg_name }}
+                            </td>
                             <td>
-                                {{ $studiengang->stdg_name }} {{ $studiengang->stdg_kürzel }}
+                                {{ $studiengang->stdg_kürzel }}
                             </td>
                             <td>Icon</td>
                             <td>Icon</td>
