@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --blue: #1475b7;
+    --green:#afca0b;
+    --red: #C62828;
+}
+
+.ausgabe-admin th, .ausgabe-admin td{
+    padding: 0 0.5em 0 0.5em;
+    border: 2px solid;
+}
+.ausgabe-admin th{
+    border-color: var(--blue);
+}
+
+.ausgabe-admin td{
+    border-color: var(--green);
+}
+
+.details-admin {
+    border: 2px solid;
+    border-color: var(--blue);
+}
+
+.details-admin table{
+    border: 2px solid;
+    border-color: var(--green);
+    width: 98%;
+    margin: 0 0 0.5em 0;
+}

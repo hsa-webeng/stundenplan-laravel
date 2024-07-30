@@ -1,3 +1,4 @@
+<!--Studiengänge-->
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -8,7 +9,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <table>
+            <table class="ausgabe-admin w-full">
                 <thead>
                 <tr>
                     <th>Studieng&auml;nge</th>
@@ -26,8 +27,8 @@
                             <td>
                                 {{ $studiengang->stdg_kürzel }}
                             </td>
-                            <td>Icon</td>
-                            <td>Icon</td>
+                            <td class="text-center align-middle"><a href="#">&#x270F;</a></td>
+                            <td class="text-center align-middle"><button>&#x1F5D1;</button></td>
                             <!--Methoden zum Löschen und Bearbeiten-->
                         </tr>
                     @endforeach
