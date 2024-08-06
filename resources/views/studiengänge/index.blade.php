@@ -8,33 +8,46 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            <table class="ausgabe-admin w-full">
-                <thead>
-                <tr>
-                    <th>Studieng&auml;nge</th>
-                    <th>Kürzel</th>
-                    <th>Bearbeiten</th>
-                    <th>Löschen</th>
-                </tr>
-                </thead>
-                <tbody>
-                    @foreach($studiengaenge as $studiengang)
+            <div class="table_background">
+                <table class="ausgabe-admin w-full">
+                    <thead class="ausgabe-user-head">
                         <tr>
-                            <td class="test_klasse">
-                                {{ $studiengang->stdg_name }}
-                            </td>
-                            <td>
-                                {{ $studiengang->stdg_kürzel }}
-                            </td>
-                            <td class="text-center align-middle"><a href="#">&#x270F;</a></td>
-                            <td class="text-center align-middle"><button>&#x1F5D1;</button></td>
-                            <!--Methoden zum Löschen und Bearbeiten-->
+                            <th>Studiengang</th>
+                            <th>Kürzel</th>
+                            <th>Aktionen</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
+                    </thead>
+                    <tbody class="ausgabe-user-body">
+                        @foreach($studiengaenge as $studiengang)
+                            <tr>
+                                <td>
+                                    {{ $studiengang->stdg_name }}
+                                </td>
+                                <td>
+                                    {{ $studiengang->stdg_kürzel }}
+                                </td>
+                                <td>
+                                    <div class="flex h-full items-center gap-3">
+                                        <a href="#">
+                                            <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $studiengang->stdg_name }}' bearbeiten" alt="'{{ $studiengang->stdg_name }}' bearbeiten">
+                                        </a>
+                                        <button>
+                                            <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $studiengang->stdg_name }}' löschen" alt="'{{ $studiengang->stdg_name }}' löschen">
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                        <tr>
+                            <td colspan="3">
+                                <a class="w-full h-full" href="#">
+                                    <p>&#x2795; Neuen Studiengang erstellen</p>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </x-app-layout>
