@@ -20,7 +20,7 @@ class Dozent extends Model
 
     public function kurse(): HasMany
     {
-        return $this->hasMany(Kurs::class);
+        return $this->hasMany(Kurs::class, 'doz_id');
     }
 
     public function blockierteZeiten(): HasMany
