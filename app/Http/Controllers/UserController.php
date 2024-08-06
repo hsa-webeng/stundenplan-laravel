@@ -21,7 +21,7 @@ class UserController extends Controller
         // get all users sorted by their dozenten nachname
         $users = User::orderBy('dozenten.dozent_nachname', 'asc')
             ->leftJoin('dozenten', 'users.id', '=', 'dozenten.user_id')
-            ->select('users.id as u_id', 'dozenten.id as d_id', 'dozenten.dozent_vorname', 'dozenten.dozent_nachname', 'dozenten.plan_abgegeben', 'users.name', 'users.email')
+            ->select('users.id as u_id', 'dozenten.id as d_id', 'users.admin', 'dozenten.dozent_vorname', 'dozenten.dozent_nachname', 'dozenten.plan_abgegeben', 'users.name', 'users.email')
             ->get();
 
         $dozenten = Dozent::orderBy('dozent_nachname', 'asc')

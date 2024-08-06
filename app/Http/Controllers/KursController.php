@@ -14,8 +14,8 @@ class KursController extends Controller
      */
     public function index(): View
     {
-        $dozenten = Dozent::all();
-        $kurse = Kurs::all();
+        $dozenten = Dozent::all()->sortBy('dozent_nachname');
+        $kurse = Kurs::all()->sortBy('kurs_name');
         return view('kurse.index', compact('kurse', 'dozenten'));
     }
 

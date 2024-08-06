@@ -27,6 +27,14 @@
                                     <div class="user_grid">
                                         <p class="user_grid_left"><strong>Username</strong>:</p> <p>{{ $user->name }}</p>
                                         <p class="user_grid_left"><strong>E-Mail</strong>:</p> <a class="underline" href="mailto:{{ $user->email }}">{{ $user->email }}</a>
+                                        <p class="user_grid_left"><strong>Rolle</strong>:</p>
+                                        @if ($user->admin == 1)
+                                            <p><strong class="text-green-600">&#x2B24; Admin</strong></p>
+                                        @elseif ($user->d_id)
+                                            <p><strong class="text-slate-600">&#x2B24; Dozent</strong></p>
+                                        @else
+                                            <p><strong class="text-slate-600">&#x2B24; Benutzer</strong></p>
+                                        @endif
                                     </div>
                                 </td>
                                 @endif
@@ -53,12 +61,125 @@
                                 @endif
                                 <td>
                                     <div class="flex h-full items-center gap-3">
-                                        <a href="#">
-                                            <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten">
-                                        </a>
-                                        <button>
-                                            <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen">
-                                        </button>
+                                        @if (is_null($user->u_id) && $user->d_id)
+                                            <a href="#">
+                                                <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten">
+                                            </a>
+
+                                            <x-danger-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion-d-{{ $user->d_id }}')">
+                                                <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen">
+                                            </x-danger-button>
+                                            <x-modal name="confirm-user-deletion-d-{{ $user->d_id }}" :show="$errors->userDeletion->isNotEmpty()" focusable>
+                                                <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+                                                    @csrf
+                                                    @method('delete')
+
+                                                    <h2 class="text-lg font-medium text-gray-900">
+                                                        {{ __('Möchtest du den Dozenten "' . $user->dozent_nachname . ', ' . $user->dozent_vorname . '" wirklich löschen?') }}
+                                                    </h2>
+
+                                                    <p class="mt-1 text-sm text-gray-600">
+                                                        {{ __('Dies wird den Dozenten, alle Kurse & geplante Stunden des Dozenten löschen:') }}
+                                                    </p>
+
+                                                    <ul class="mt-1 text-sm">
+                                                        <li class="mt-1">{{ __('Dozent: ') . $user->dozent_nachname . ', ' . $user->dozent_vorname }}</li>
+                                                        <li class="mt-1">{{ __('Alle Kurse des Dozenten') }}</li>
+                                                        <li class="mt-1">{{ __('Stundenplan des Dozenten') }}</li>
+                                                    </ul>
+
+                                                    <div class="mt-6 flex justify-end">
+                                                        <x-secondary-button x-on:click="$dispatch('close')">
+                                                            {{ __('Abbrechen') }}
+                                                        </x-secondary-button>
+
+                                                        <x-danger-button class="ms-3">
+                                                            {{ __('Dozent löschen') }}
+                                                        </x-danger-button>
+                                                    </div>
+                                                </form>
+                                            </x-modal>
+
+                                        @elseif(is_null($user->d_id) && $user->u_id)
+                                            <a href="#">
+                                                <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->name }}' bearbeiten" alt="'{{ $user->name }}' bearbeiten">
+                                            </a>
+
+                                            <x-danger-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion-{{ $user->d_id }}')">
+                                                <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $user->name }}' löschen" alt="'{{ $user->name }}' löschen">
+                                            </x-danger-button>
+                                            <x-modal name="confirm-user-deletion-{{ $user->d_id }}" :show="$errors->userDeletion->isNotEmpty()" focusable>
+                                                <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+                                                    @csrf
+                                                    @method('delete')
+
+                                                    <h2 class="text-lg font-medium text-gray-900">
+                                                        {{ __('Möchtest du den Benutzer "' . $user->name . '" wirklich löschen?') }}
+                                                    </h2>
+
+                                                    <p class="mt-1 text-sm text-gray-600">
+                                                        {{ __('Dies wird den Benutzer & dessen Anmeldedaten löschen:') }}
+                                                    </p>
+
+                                                    <ul class="mt-1 text-sm">
+                                                        <li class="mt-1">{{ __('Benutzer: ') . $user->name }}</li>
+                                                        <li class="mt-1">{{ __('E-Mail: ') . $user->email }}</li>
+                                                    </ul>
+
+                                                    <div class="mt-6 flex justify-end">
+                                                        <x-secondary-button x-on:click="$dispatch('close')">
+                                                            {{ __('Abbrechen') }}
+                                                        </x-secondary-button>
+
+                                                        <x-danger-button class="ms-3">
+                                                            {{ __('Benutzer löschen') }}
+                                                        </x-danger-button>
+                                                    </div>
+                                                </form>
+                                            </x-modal>
+
+                                        @elseif($user->u_id && $user->d_id)
+                                            <a href="#">
+                                                <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten">
+                                            </a>
+
+                                            <x-danger-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion-{{ $user->u_id }}')">
+                                                <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen">
+                                            </x-danger-button>
+                                            <x-modal name="confirm-user-deletion-{{ $user->u_id }}" :show="$errors->userDeletion->isNotEmpty()" focusable>
+                                                <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+                                                    @csrf
+                                                    @method('delete')
+
+                                                    <h2 class="text-lg font-medium text-gray-900">
+                                                        {{ __('Möchtest du den Dozenten "' . $user->dozent_nachname . ', ' . $user->dozent_vorname . '" wirklich löschen?') }}
+                                                    </h2>
+
+                                                    <p class="mt-1 text-sm text-gray-600">
+                                                        {{ __('Dies wird den Dozenten, alle Kurse & geplanten Stunden des Dozenten, den Benutzer und Anmeldedaten löschen:') }}
+                                                    </p>
+
+                                                    <ul class="mt-1 text-sm">
+                                                        <li class="mt-1">{{ __('Dozent: ') . $user->dozent_nachname . ', ' . $user->dozent_vorname }}</li>
+                                                        <li class="mt-1">{{ __('Benutzer: ') . $user->name }}</li>
+                                                        <li class="mt-1">{{ __('E-Mail: ') . $user->email }}</li>
+                                                        <li class="mt-1">{{ __('Alle Kurse des Dozenten') }}</li>
+                                                        <li class="mt-1">{{ __('Stundenplan des Dozenten') }}</li>
+                                                    </ul>
+
+                                                    <div class="mt-6 flex justify-end">
+                                                        <x-secondary-button x-on:click="$dispatch('close')">
+                                                            {{ __('Abbrechen') }}
+                                                        </x-secondary-button>
+
+                                                        <x-danger-button class="ms-3">
+                                                            {{ __('Dozent & Benutzer löschen') }}
+                                                        </x-danger-button>
+                                                    </div>
+                                                </form>
+                                            </x-modal>
+                                        @endif
+
                                     </div>
                                 </td>
                             </tr>
@@ -66,7 +187,7 @@
                         <tr>
                             <td>
                                 <a class="w-full h-full" href="#">
-                                    <p>&#x2795; Neuen User erstellen</p>
+                                    <p>&#x2795; Neuen Benutzer erstellen</p>
                                 </a>
                             </td>
                             <td colspan="2">

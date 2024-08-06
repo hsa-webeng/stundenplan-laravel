@@ -4,11 +4,15 @@
 
 :root {
     --blue: #1475b7;
+    --blue_bg: #ced8ed;
     --green:#afca0b;
     --green_bg: #e3e4d5;
     --red: #C62828;
 }
 
+/*----------------------------------------------------Admin Pages----------------------------------------------------*/
+
+/*------------------------Admin Tables-------------------------------*/
 .table_background{
     display: flex;
     background-color: white;
@@ -38,7 +42,17 @@
     padding-bottom: 0.4rem;
 }
 
-.ausgabe-user-head{
+.ausgabe-user-body tr:nth-child(even) {
+    background-color: #e8e8e8;
+}
+
+.ausgabe-user-head,
+.ausgabe-user-body tr:last-child {
+    background-color: var(--blue);
+    color: white;
+}
+
+.ausgabe-user-body tr:last-child {
     background-color: var(--blue);
     color: white;
 }
@@ -46,6 +60,11 @@
 .ausgabe-admin td{
     padding-top: .9rem;
     padding-bottom: .9rem;
+}
+
+.ausgabe-user-body tr:last-child td {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
 }
 
 .ausgabe-user-body tr {
@@ -56,6 +75,7 @@
 .ausgabe-user-body tr:hover,
 .ausgabe-user-body tr:focus-within {
     background-color: var(--green_bg);
+    color: black;
     transition: .1s;
 }
 
@@ -79,18 +99,6 @@
     width: .4rem;
 }
 
-.details-admin {
-    border: 2px solid;
-    border-color: var(--blue);
-}
-
-.details-admin table{
-    border: 2px solid;
-    border-color: var(--green);
-    width: 98%;
-    margin: 0 0 0.5em 0;
-}
-
 .user_grid {
     display: grid;
     grid-template-columns: min-content auto;
@@ -112,5 +120,31 @@
 .admin-users-icons:focus-within {
     transform: scale(1.2);
     opacity: 1;
+    transition: .1s;
+}
+
+/*------------------------Admin Details-------------------------------*/
+
+.details-admin {
+    background-color: white;
+    padding: 0;
+    border-radius: 0.5rem;
+    box-shadow: 0 5px 10px rgba(114, 114, 113, 0.4);
+    overflow: hidden;
+    margin-bottom: 1.3rem;
+}
+
+.details-admin summary {
+    cursor: pointer;
+    padding: .5rem .4rem;
+    font-weight: 500;
+
+    margin: 0;
+    transition: margin 150ms ease-out;
+}
+
+.details-admin[open] summary {
+    background-color: var(--blue_bg);
+    margin-bottom: 10px;
     transition: .1s;
 }
