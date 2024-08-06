@@ -51,6 +51,11 @@ class ProfileController extends Controller
             if ($isUser) {
                 $user = User::findOrFail($id);
 
+                // check if user is last admin
+                if ($user->admin && User::where('admin', true)->count() === 1) {
+                    throw new \Exception('Der letzte Administrator kann nicht gelöscht werden.');
+                }
+
                 // handle current user deletion
                 if (Auth::id() === $user->id) {
                     Auth::logout();
