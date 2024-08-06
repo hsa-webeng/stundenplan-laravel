@@ -33,7 +33,7 @@ class UserController extends Controller
         $users_dozenten = $users->toBase()->merge($dozenten);
 
         // get the view and pass the users and dozenten arrays
-        return view('users.index', ['users_dozenten' => $users_dozenten]);
+        return view('users.list_users', ['users_dozenten' => $users_dozenten]);
     }
 
     /**

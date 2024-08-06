@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('stunden', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kurs_id')->constrained('kurse');
+            $table->foreignId('kurs_id')->constrained('kurse')->cascadeOnDelete();
             $table->integer('wochentag'); // 1 = Montag, 2 = Dienstag, ..., 7 = Sonntag
             $table->time('block_start'); // Stundenbeginn
             $table->time('block_end'); // Stundenende

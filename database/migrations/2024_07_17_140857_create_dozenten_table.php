@@ -19,7 +19,7 @@ return new class extends Migration
             // 3 possible values: null = not even started, 0 = started but not finished, 1 = finished
             $table->boolean('plan_abgegeben')->nullable()->default(null);
 
-            $table->foreignId('user_id')->nullable()->constrained("users");
+            $table->foreignId('user_id')->nullable()->constrained("users")->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -14,7 +14,7 @@ class StudiengangController extends Controller
     public function index(): View
     {
         $studiengaenge = Studiengang::all()->sortBy('stdg_name');
-        return view('studiengänge.index', compact('studiengaenge'));
+        return view('studiengänge.list_stdgs', compact('studiengaenge'));
     }
 
     /**

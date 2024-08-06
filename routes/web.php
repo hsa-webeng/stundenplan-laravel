@@ -31,7 +31,12 @@ Route::get('/images/{imageName}', [ImageController::class, 'show'])->name('image
  */
 Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     // only admins can delete users
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::delete('/users/{id}', [ProfileController::class, 'destroy'])
+        ->name('users.destroy')
+        ->defaults('isUser', true);
+    Route::delete('/dozenten/{id}', [ProfileController::class, 'destroy'])
+        ->name('dozenten.destroy')
+        ->defaults('isUser', false);
 
     // show all users
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
