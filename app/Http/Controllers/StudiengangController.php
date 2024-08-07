@@ -60,8 +60,15 @@ class StudiengangController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
-        //
+        try {
+            $studiengang = Studiengang::findOrFail($id);
+            $studiengang->delete();
+            return back()->with('success', 'Der Studiengang wurde erfolgreich gelöscht.');
+        }
+        catch (\Exception $e) {
+            return back()->with('error', 'Es ist ein Fehler aufgetreten: ' . $e->getMessage());
+        }
     }
 }

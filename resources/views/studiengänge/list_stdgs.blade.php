@@ -1,10 +1,11 @@
-<!--Studiengänge-->
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Studiengänge') }}
         </h2>
     </x-slot>
+
+    @include('components.status-msg')
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -36,7 +37,7 @@
                                         <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $studiengang->stdg_name }}' löschen" alt="'{{ $studiengang->stdg_name }}' löschen">
                                     </x-danger-button>
                                     <x-modal name="confirm-course-deletion-d-{{ $studiengang->id }}" :show="$errors->userDeletion->isNotEmpty()" focusable>
-                                        <form method="post" action="{{-- route('profile.destroy') --}}" class="p-6">
+                                        <form method="post" action="{{ route('studiengaenge.destroy', $studiengang->id) }}" class="p-6">
                                             @csrf
                                             @method('delete')
 

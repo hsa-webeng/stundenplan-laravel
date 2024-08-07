@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Dozent;
 use App\Models\Kurs;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -62,8 +63,15 @@ class KursController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(int $id): RedirectResponse
     {
-        //
+        try {
+            $kurs = Kurs::findorFail($id);
+            $kurs->delete();
+            return redirect()->route('kurse.index')->with('success', 'Kurs erfolgreich gelöscht.');
+        }
+        catch (\Exception $e) {
+            return redirect()->route('kurse.index')->with('error', 'Es ist ein Fehler aufgetreten: ' . $e->getMessage());
+        }
     }
 }

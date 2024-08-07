@@ -43,7 +43,7 @@ class ProfileController extends Controller
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request, $id, bool $isUser = true): RedirectResponse
+    public function destroy(Request $request, int $id, bool $isUser = true): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -63,8 +63,14 @@ class ProfileController extends Controller
                     $request->session()->regenerateToken();
                 }
 
+                if ($user->dozent) {
+                    $message = 'Benutzer & Dozent erfolgreich gelöscht.';
+                }
+                else {
+                    $message = 'Benutzer erfolgreich gelöscht.';
+                }
+
                 $user->delete(); // cascade delete associated tables (e.g. dozenten, ...)
-                $message = 'Benutzer erfolgreich gelöscht.';
             }
             else {
                 $dozent = Dozent::findOrFail($id);
@@ -76,7 +82,7 @@ class ProfileController extends Controller
             return redirect()->route('users.index')->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Ein Fehler ist aufgetreten: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Es ist ein Fehler aufgetreten: ' . $e->getMessage());
         }
     }
 }
