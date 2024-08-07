@@ -30,10 +30,26 @@ Route::get('/images/{imageName}', [ImageController::class, 'show'])->name('image
  * Admins only functions
  */
 Route::middleware(['auth', AdminMiddleware::class])->group(function () {
-    // only admins can delete users
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    /**
+     * Delete of users, dozenten, kurse and studiengänge
+     */
+    Route::delete('/users/{id}', [ProfileController::class, 'destroy'])
+        ->name('users.destroy')
+        ->defaults('isUser', true);
+    Route::delete('/dozenten/{id}', [ProfileController::class, 'destroy'])
+        ->name('dozenten.destroy')
+        ->defaults('isUser', false);
 
-    // show all users
+    Route::delete('/kurse/{id}', [KursController::class, 'destroy'])
+        ->name('kurse.destroy');
+
+    Route::delete('/studiengänge/{id}', [StudiengangController::class, 'destroy'])
+        ->name('studiengaenge.destroy');
+
+
+    /**
+     * List all users, dozenten, kurse and studiengänge
+     */
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/kurse', [KursController::class, 'index'])->name('kurse.index');
     Route::get('/studiengänge', [StudiengangController::class, 'index'])->name('studiengänge.index');

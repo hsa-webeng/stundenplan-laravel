@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('kurse', function (Blueprint $table) {
             $table->id();
             $table->string('kurs_name');
-            $table->foreignId('doz_id')->constrained('dozenten');
-            $table->foreignId('stdg_id')->constrained('studiengänge');
+            $table->foreignId('doz_id')->constrained('dozenten')->cascadeOnDelete();
+            $table->foreignId('stdg_id')->constrained('studiengänge')->cascadeOnDelete();
             $table->integer('semester');
             $table->integer('sws'); // Semesterwochenstunden
             $table->timestamps();

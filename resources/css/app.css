@@ -148,3 +148,25 @@
     margin-bottom: 10px;
     transition: .1s;
 }
+
+/*------------------------Admin Alters-------------------------------*/
+
+.alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 10px rgba(114, 114, 113, 0.4);
+}
+
+.alert-danger {
+    background-color: var(--red);
+    color: white;
+}
+
+.alert-success {
+    background-color: var(--green);
+    color: black;
+}
