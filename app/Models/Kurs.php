@@ -13,6 +13,14 @@ class Kurs extends Model
 
     protected $table = 'kurse';
 
+    protected $fillable = [
+        'kurs_name',
+        'doz_id',
+        'stdg_id',
+        'semester',
+        'sws',
+    ];
+
     public function studiengang(): BelongsTo
     {
         return $this->belongsTo(Studiengang::class, 'stdg_id');

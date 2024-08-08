@@ -54,6 +54,8 @@ class UserDozController extends Controller
      */
     public function store(Request $request, int $mode, ?int $id = null)
     {
+        $message = 'Der ';
+
         // adding a user (1) or both (0)
         if ($mode === 1 || $mode === 0) {
             $request->validate([
@@ -80,6 +82,8 @@ class UserDozController extends Controller
                 $dozent->user_id = $user->id;
                 $dozent->save();
             }
+
+            $message .= 'Benutzer "' . $request->name . '"';
         }
 
         // adding a dozent (2) or both (0)
@@ -107,9 +111,20 @@ class UserDozController extends Controller
             }
 
             $dozent->save();
+
+            if ($message !== 'Der ') {
+                $message .= ' & ';
+            }
+            $message .= 'Dozent "' . $request->first_name . ' ' . $request->last_name . '"';
         }
 
-        return redirect(route('users.index'));
+        $message .= ' wurde erfolgreich hinzugefügt.';
+
+        if ($message !== 'Der  wurde erfolgreich hinzugefügt.') {
+            return redirect(route('users.index'))->with('success', $message);
+        } else {
+            return redirect(route('users.index'));
+        }
     }
 
     /**

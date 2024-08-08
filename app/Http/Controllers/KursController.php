@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Dozent;
 use App\Models\Kurs;
+use App\Models\Studiengang;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -23,17 +24,33 @@ class KursController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(int $doz_id): View
     {
-        //
+        $studiengaenge = Studiengang::orderBy('stdg_name')->select('id', 'stdg_kürzel')->get();
+        return view('kurse.add_kurs', compact('doz_id', 'studiengaenge'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, int $doz_id)
     {
-        //
+        $request -> validate([
+            'kurs_name' => ['required', 'string', 'max:255'],
+            'semester' => ['required', 'integer', 'min:1', 'max:10'],
+            'sws' => ['required', 'integer', 'min:1', 'max:10'],
+            'studiengang' => ['required', 'integer', 'exists:studiengänge,id'],
+        ]);
+
+        Kurs::create([
+            'kurs_name' => $request->kurs_name,
+            'doz_id' => $doz_id,
+            'stdg_id' => $request->studiengang,
+            'semester' => $request->semester,
+            'sws' => $request->sws,
+        ]);
+
+        return redirect(route('kurse.index'))->with('success', 'Der Kurs "' . $request->kurs_name . '" wurde erfolgreich hinzugefügt.');
     }
 
     /**

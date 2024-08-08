@@ -12,6 +12,11 @@ class Studiengang extends Model
 
     protected $table = 'studiengänge';
 
+    protected $fillable = [
+        'stdg_name',
+        'stdg_kürzel',
+    ];
+
     public function kurse(): HasMany
     {
         return $this->hasMany(Kurs::class);

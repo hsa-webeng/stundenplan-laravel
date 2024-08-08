@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 726 799" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+<svg width="100%" height="100%" viewBox="0 0 726 799" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
+     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
     <g id="calendar">
         <clipPath id="_clip1">
-            <rect id="calendar1" serif:id="calendar" x="9" y="157.487" width="708" height="620.013"/>
+            <rect id="calendar1" x="9" y="157.487" width="708" height="620.013"/>
         </clipPath>
         <g clip-path="url(#_clip1)">
             <path d="M717,119.06L717,727.94C717,755.293 694.793,777.5 667.44,777.5L58.56,777.5C31.207,777.5 9,755.293 9,727.94L9,119.06C9,91.707 31.207,69.5 58.56,69.5L667.44,69.5C694.793,69.5 717,91.707 717,119.06Z" style="fill:rgb(220,220,220);"/>

@@ -56,6 +56,18 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::post('/users/add/{mode}/{id?}', [UserDozController::class, 'store'])
         ->name('users.register');
 
+    Route::get('/studiengänge/create', [StudiengangController::class, 'create'])
+        ->name('stdgs.create');
+
+    Route::post('/studiengänge/add', [StudiengangController::class, 'store'])
+        ->name('stdgs.register');
+
+    Route::get('/kurse/create/{doz_id}', [KursController::class, 'create'])
+        ->name('kurse.create');
+
+    Route::post('/kurse/add/{doz_id}', [KursController::class, 'store'])
+        ->name('kurse.register');
+
     /**
      * List all users & dozenten, kurse and studiengänge
      */
