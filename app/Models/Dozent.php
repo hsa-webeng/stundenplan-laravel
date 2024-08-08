@@ -13,6 +13,16 @@ class Dozent extends Model
 
     protected $table = 'dozenten';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'dozent_vorname',
+        'dozent_nachname',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

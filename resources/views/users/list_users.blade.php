@@ -23,7 +23,7 @@
                         <tr>
                             @if (is_null($user->u_id))
                                 <td class="text-center align-middle">
-                                    <a href="#">&#x2795; Hinzufügen</a>
+                                    <a href="{{ route('users.create', [1, $user->d_id]) }}">&#x2795; Hinzufügen</a>
                                 </td>
                             @else
                                 <td>
@@ -43,7 +43,7 @@
                             @endif
                             @if (is_null($user->d_id))
                                 <td class="text-center align-middle">
-                                    <a href="#">&#x2795; Hinzufügen</a>
+                                    <a href="{{ route('users.create', [2, $user->u_id]) }}">&#x2795; Hinzufügen</a>
                                 </td>
                             @else
                                 <td>
@@ -170,15 +170,18 @@
                         </tr>
                     @endforeach
                     <tr>
-                        <td>
-                            <a class="w-full h-full" href="#">
-                                <p>&#x2795; Neuen Benutzer erstellen</p>
-                            </a>
-                        </td>
-                        <td colspan="2">
-                            <a class="w-full h-full" href="#">
-                                <p>&#x2795; Neuen Dozenten erstellen</p>
-                            </a>
+                        <td colspan="3">
+                            <div class="flex justify-between w-full">
+                                <a class="h-full px-3" href="{{ route('users.create', 1) }}">
+                                    <p>&#x2795; Neuen Benutzer erstellen</p>
+                                </a>
+                                <a class="h-full px-3" href="{{ route('users.create', 2) }}">
+                                    <p>&#x2795; Neuen Dozenten erstellen</p>
+                                </a>
+                                <a class="h-full px-3" href="{{ route('users.create', 0) }}">
+                                    <p>&#x2795; Neuen Benutzer & Dozenten erstellen</p>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
