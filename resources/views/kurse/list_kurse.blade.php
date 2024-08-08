@@ -77,7 +77,7 @@
                                 @endforeach
                                 <tr>
                                     <td colspan="5">
-                                        <a class="w-full h-full" href="#">
+                                        <a class="w-full h-full" href="{{ route('kurse.create', $dozent->id) }}">
                                             <p>&#x2795; Neuen Kurs erstellen</p>
                                         </a>
                                     </td>

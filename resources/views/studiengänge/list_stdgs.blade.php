@@ -72,7 +72,7 @@
                     @endforeach
                     <tr>
                         <td colspan="3">
-                            <a class="w-full h-full" href="#">
+                            <a class="w-full h-full" href="{{ route('stdgs.create') }}">
                                 <p>&#x2795; Neuen Studiengang erstellen</p>
                             </a>
                         </td>

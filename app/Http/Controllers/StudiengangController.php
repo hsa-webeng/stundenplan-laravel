@@ -20,9 +20,9 @@ class StudiengangController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
-        //
+        return view('studiengänge.add_stdg');
     }
 
     /**
@@ -30,7 +30,17 @@ class StudiengangController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'stdg_name' => ['required', 'string', 'max:255'],
+            'stdg_short' => ['required', 'string', 'max:5'],
+        ]);
+
+        Studiengang::create([
+            'stdg_name' => $request->stdg_name,
+            'stdg_kürzel' => $request->stdg_short,
+        ]);
+
+        return redirect(route('studiengänge.index'))->with('success', 'Der Studiengang "' . $request->stdg_name . '" wurde erfolgreich hinzugefügt.');
     }
 
     /**

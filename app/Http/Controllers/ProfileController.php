@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
+/**
+ * Controller for the actions a user can perform on their profile.
+ * (Except for deletion, admins only)
+ */
 class ProfileController extends Controller
 {
     /**
