@@ -29,7 +29,7 @@
                             </td>
                             <td>
                                 <div class="flex h-full items-center gap-3">
-                                    <a href="#">
+                                    <a href="{{ route('stdgs.edit', $studiengang->id) }}">
                                         <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $studiengang->stdg_name }}' bearbeiten" alt="'{{ $studiengang->stdg_name }}' bearbeiten">
                                     </a>
 

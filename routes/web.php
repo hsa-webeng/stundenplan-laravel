@@ -69,6 +69,21 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
         ->name('kurse.register');
 
     /**
+     * Edit users & dozenten, kurse and studiengänge
+     */
+    Route::get('/kurse/edit/{id}', [KursController::class, 'edit'])
+        ->name('kurse.edit');
+
+    Route::patch('/kurse/update/{id}', [KursController::class, 'update'])
+        ->name('kurse.update');
+
+    Route::get('/studiengänge/edit/{id}', [StudiengangController::class, 'edit'])
+        ->name('stdgs.edit');
+
+    Route::patch('/studiengänge/update/{id}', [StudiengangController::class, 'update'])
+        ->name('stdgs.update');
+
+    /**
      * List all users & dozenten, kurse and studiengänge
      */
     Route::get('/users', [UserDozController::class, 'index'])->name('users.index');

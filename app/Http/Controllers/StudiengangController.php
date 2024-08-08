@@ -22,7 +22,7 @@ class StudiengangController extends Controller
      */
     public function create(): View
     {
-        return view('studiengänge.add_stdg');
+        return view('studiengänge.manage_stdg');
     }
 
     /**
@@ -56,7 +56,8 @@ class StudiengangController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $studiengang = Studiengang::findOrFail($id);
+        return view('studiengänge.manage_stdg', compact('studiengang'));
     }
 
     /**
@@ -64,7 +65,30 @@ class StudiengangController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'stdg_name' => ['required', 'string', 'max:255'],
+            'stdg_short' => ['required', 'string', 'max:5'],
+        ]);
+
+        $studiengang = Studiengang::findOrFail($id);
+
+        $wasChanged = false;
+
+        if ($studiengang->stdg_name !== $request->stdg_name) {
+            $studiengang->stdg_name = $request->stdg_name;
+            $wasChanged = true;
+        }
+        if ($studiengang->stdg_kürzel !== $request->stdg_short) {
+            $studiengang->stdg_kürzel = $request->stdg_short;
+            $wasChanged = true;
+        }
+
+        if (!$wasChanged) {
+            return redirect(route('studiengänge.index'))->with('info', 'Es wurden keine Änderungen am Studiengang "' . $request->stdg_short . '" vorgenommen.');
+        }
+
+        $studiengang->save();
+        return redirect(route('studiengänge.index'))->with('success', 'Der Studiengang "' . $request->stdg_short . '" wurde erfolgreich bearbeitet.');
     }
 
     /**

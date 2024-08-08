@@ -170,3 +170,8 @@
     background-color: var(--green);
     color: black;
 }
+
+.alert-info {
+    background-color: var(--blue);
+    color: white;
+}
