@@ -83,6 +83,13 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::patch('/studiengänge/update/{id}', [StudiengangController::class, 'update'])
         ->name('stdgs.update');
 
+    // user create route must take a mode parameter (1 for user, 2 for dozent, 0 for both)
+    Route::get('/users/edit/{id}/{mode}', [UserDozController::class, 'edit'])
+        ->name('users.edit');
+
+    Route::patch('/users/update/{id}/{mode}', [UserDozController::class, 'update'])
+        ->name('users.update');
+
     /**
      * List all users & dozenten, kurse and studiengänge
      */
