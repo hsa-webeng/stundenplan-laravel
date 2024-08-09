@@ -35,7 +35,7 @@
                                         <td>{{ $kurs->studiengang->stdg_name }}</td>
                                         <td class="text-right">
                                             <div class="flex h-full items-center gap-3">
-                                                <a href="#">
+                                                <a href="{{ route('kurse.edit', $kurs->id) }}">
                                                     <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $kurs->kurs_name }}' bearbeiten" alt="'{{ $kurs->kurs_name }}' bearbeiten">
                                                 </a>
 

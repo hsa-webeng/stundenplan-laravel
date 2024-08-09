@@ -26,8 +26,8 @@ class KursController extends Controller
      */
     public function create(int $doz_id): View
     {
-        $studiengaenge = Studiengang::orderBy('stdg_name')->select('id', 'stdg_kürzel')->get();
-        return view('kurse.add_kurs', compact('doz_id', 'studiengaenge'));
+        $studiengaenge = Studiengang::orderBy('stdg_name')->select('id', 'stdg_kürzel', 'stdg_name')->get();
+        return view('kurse.manage_kurs', compact('doz_id', 'studiengaenge'));
     }
 
     /**
@@ -66,7 +66,9 @@ class KursController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $studiengaenge = Studiengang::orderBy('stdg_name')->select('id', 'stdg_kürzel', 'stdg_name')->get();
+        $kurs = Kurs::findorFail($id);
+        return view('kurse.manage_kurs', compact('kurs', 'studiengaenge'));
     }
 
     /**
@@ -74,7 +76,41 @@ class KursController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request -> validate([
+            'kurs_name' => ['required', 'string', 'max:255'],
+            'semester' => ['required', 'integer', 'min:1', 'max:10'],
+            'sws' => ['required', 'integer', 'min:1', 'max:10'],
+            'studiengang' => ['required', 'integer', 'exists:studiengänge,id'],
+        ]);
+
+        $kurs = Kurs::findorFail($id);
+
+        $wasChanged = false;
+
+        // compare the old and new values and update only the changed ones
+        if ($kurs->kurs_name !== $request->kurs_name) {
+            $kurs->kurs_name = $request->kurs_name;
+            $wasChanged = true;
+        }
+        if ($kurs->semester != $request->semester) {
+            $kurs->semester = $request->semester;
+            $wasChanged = true;
+        }
+        if ($kurs->sws != $request->sws) {
+            $kurs->sws = $request->sws;
+            $wasChanged = true;
+        }
+        if ($kurs->stdg_id != $request->studiengang) {
+            $kurs->stdg_id = $request->studiengang;
+            $wasChanged = true;
+        }
+
+        if (!$wasChanged) {
+            return redirect(route('kurse.index'))->with('info', 'Es wurden keine Änderungen am Kurs "' . $request->kurs_name . '" vorgenommen.');
+        }
+
+        $kurs->save();
+        return redirect(route('kurse.index'))->with('success', 'Der Kurs "' . $request->kurs_name . '" wurde erfolgreich aktualisiert.');
     }
 
     /**

@@ -66,7 +66,7 @@
                                 <div class="flex h-full items-center gap-3">
                                     {{-- If selected is a dozent but has no user --}}
                                     @if (is_null($user->u_id) && $user->d_id)
-                                        <a href="#">
+                                        <a href="{{ route('users.edit', [$user->d_id, 2]) }}">
                                             <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten">
                                         </a>
 
@@ -106,8 +106,13 @@
 
                                         {{-- If selected is a user (and a dozent) --}}
                                     @elseif($user->u_id)
-                                        <a href="#">
-                                            <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten">
+                                        @if ($user->d_id)
+                                            <a href="{{ route('users.edit', [$user->u_id, 0]) }}">
+                                                <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten">
+                                        @else
+                                            <a href="{{ route('users.edit', [$user->u_id, 1]) }}">
+                                                <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->name }}' bearbeiten" alt="'{{ $user->name }}' bearbeiten">
+                                        @endif
                                         </a>
 
                                         <x-danger-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion-{{ $user->u_id }}')">

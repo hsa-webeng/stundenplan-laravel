@@ -46,7 +46,7 @@ class UserDozController extends Controller
      */
     public function create(int $mode, ?int $id = null): View
     {
-        return view('users.add_user', ['mode' => $mode, 'id' => $id]);
+        return view('users.manage_user', ['mode' => $mode, 'id' => $id]);
     }
 
     /**
@@ -138,17 +138,115 @@ class UserDozController extends Controller
     /**
      * Show the form for editing the specified resource (frontend)
      */
-    public function edit(string $id)
+    public function edit(string $id, int $mode): View|RedirectResponse
     {
-        //
+        // mode 1: user, mode 2: dozent, mode 0: both
+        try {
+            if ($mode === 1) {
+                $user = User::findOrFail($id);
+                return view('users.manage_user', ['user' => $user, 'mode' => $mode, 'id' => $id]);
+            } else if ($mode === 2) {
+                $dozent = Dozent::findOrFail($id);
+                return view('users.manage_user', ['dozent' => $dozent, 'mode' => $mode, 'id' => $id]);
+            } else {
+                $user = User::findOrFail($id);
+                $dozent = Dozent::where('user_id', $id)->first();
+
+                if ($dozent === null) {
+                    throw new \Exception();
+                }
+
+                return view('users.manage_user', ['user' => $user, 'dozent' => $dozent, 'mode' => $mode, 'id' => $id]);
+            }
+        }
+        catch (\Exception) {
+            return redirect(route('users.index'))->with('error', 'Der Benutzer oder Dozent konnte nicht gefunden werden.');
+        }
     }
 
     /**
      * Update the specified resource in storage (backend)
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id, int $mode)
     {
-        //
+        $message = 'Der ';
+
+        // updating a user (1) or both (0)
+        if ($mode === 1 || $mode === 0) {
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class.',email,'.$id],
+                'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+                'role' => ['required', 'boolean'],
+            ]);
+
+            $user = User::findOrFail($id);
+
+            $wasChanged = false;
+            // compare old values with new ones & only update if they are different
+            if ($user->name !== $request->name) {
+                $user->name = $request->name;
+                $wasChanged = true;
+            }
+            if ($user->email !== $request->email) {
+                $user->email = $request->email;
+                $wasChanged = true;
+            }
+            if ($request->password != null && $request->password !== '' && Hash::check($request->password, $user->password) === false) {
+                $user->password = Hash::make($request->password);
+                $wasChanged = true;
+            }
+            if ($request->role != $user->admin) {
+                $user->admin = $request->role;
+                $wasChanged = true;
+            }
+
+            if ($wasChanged) {
+                $user->save();
+                $message .= 'Benutzer "' . $request->name . '"';
+            }
+        }
+
+        // updating a dozent (2) or both (0)
+        if ($mode === 2 || $mode === 0) {
+            $request->validate([
+                'first_name' => ['required', 'string', 'max:255'],
+                'last_name' => ['required', 'string', 'max:255'],
+            ]);
+
+            if ($mode === 0) {
+                $dozent = Dozent::where('user_id', $id)->first();
+            } else {
+                $dozent = Dozent::findOrFail($id);
+            }
+
+            $wasChanged = false;
+
+            if ($dozent->dozent_vorname !== $request->first_name) {
+                $dozent->dozent_vorname = $request->first_name;
+                $wasChanged = true;
+            }
+            if ($dozent->dozent_nachname !== $request->last_name) {
+                $dozent->dozent_nachname = $request->last_name;
+                $wasChanged = true;
+            }
+
+            if ($wasChanged) {
+                $dozent->save();
+                if ($message !== 'Der ') {
+                    $message .= ' & ';
+                }
+                $message .= 'Dozent "' . $request->first_name . ' ' . $request->last_name . '"';
+            }
+        }
+
+        $message .= ' wurde erfolgreich aktualisiert.';
+
+        if ($message !== 'Der  wurde erfolgreich aktualisiert.') {
+            return redirect(route('users.index'))->with('success', $message);
+        } else {
+            return redirect(route('users.index'))->with('info', 'Es wurden keine Änderungen am Benutzer oder Dozenten vorgenommen.');
+        }
     }
 
     /**

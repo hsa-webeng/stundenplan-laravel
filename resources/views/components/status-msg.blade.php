@@ -11,5 +11,11 @@
                 <li>{{ Session::get('error') }}</li>
             </ul>
         </div>
+    @elseif (Session::has('info'))
+        <div class="alert alert-info max-w-7xl sm:mx-6 lg:mx-8 w-full">
+            <ul>
+                <li>{{ Session::get('info') }}</li>
+            </ul>
+        </div>
     @endif
 </div>
