@@ -46,6 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
         subject.addEventListener('dragend', dragEnd);
     }
 
+    function makeUnDraggable(subject) {
+        subject.setAttribute('draggable', 'false');
+        subject.removeEventListener('dragstart', dragStart);
+        subject.removeEventListener('dragend', dragEnd);
+    }
+
     /**
      * Handles the drag start event.
      * @param {DragEvent} event - The drag event.
@@ -99,14 +105,44 @@ document.addEventListener('DOMContentLoaded', () => {
         const subjectLength = parseFloat(event.dataTransfer.getData('length'));
         const { startTime, endTime, day } = getTimeAndDayFromCell(this, subjectLength);
 
+        // check if the subject is already in the timetable
+        const isSubjectInTimetable = checkIfSubjectIsInTimetable(draggedSubject.dataset.subjectId);
+
         if (isValidDropTarget(this, subjectLength)) {
-            const newSubject = draggedSubject.cloneNode(true);
-            newSubject.classList.add('dropped-subject');
+            let newSubject = null;
+
+            if (isSubjectInTimetable && draggedSubject.classList.contains('dropped-subject')) {
+                // if the subject is already in the timetable and we're moving it
+                newSubject = draggedSubject;
+                removeSubjectAndClones(draggedSubject.parentElement, parseFloat(draggedSubject.dataset.length), draggedSubject.dataset.subjectId);
+            } else if (isSubjectInTimetable) {
+                // if the subject is in the timetable, but we're trying to add it again
+                this.classList.remove('hovered');
+                return;
+            } else {
+                // if it's a new subject being added to the timetable
+                newSubject = document.createElement('div');
+                newSubject.className = draggedSubject.className;
+                newSubject.classList.add('dropped-subject');
+                newSubject.dataset.subjectId = draggedSubject.dataset.subjectId;
+                newSubject.dataset.length = subjectLength.toString();
+
+                // clone only p elements with class 'course_name' & 'course_stdg'
+                draggedSubject.querySelectorAll('p.course_name, p.course_stdg').forEach(p => {
+                    newSubject.appendChild(p.cloneNode(true));
+                });
+            }
+
+            if (newSubject === null) {
+                return;
+            }
+
+            // Update the subject's time and day information
             newSubject.dataset.startTime = startTime;
             newSubject.dataset.endTime = endTime;
-            newSubject.dataset.day = day;
-            newSubject.dataset.subjectId = draggedSubject.dataset.subjectId;
+            newSubject.dataset.day = day.toString();
 
+            // update or create the time span
             let timeSpan = newSubject.querySelector('.time-span');
             if (!timeSpan) {
                 timeSpan = document.createElement('div');
@@ -116,22 +152,17 @@ document.addEventListener('DOMContentLoaded', () => {
             timeSpan.textContent = `${startTime} - ${endTime}`;
 
             this.appendChild(newSubject);
+            makeUnDraggable(draggedSubject);
             makeDraggable(newSubject);
 
-            const originalParentCell = draggedSubject.parentNode;
-            if (originalParentCell !== this) {
-                removeSubjectAndClones(originalParentCell, parseFloat(draggedSubject.dataset.length));
-            }
-
+            // create clones for multi-cell subjects
             let currentCell = this;
             for (let i = 1; i < subjectLength; i++) {
                 currentCell = getNextCell(currentCell);
                 if (currentCell) {
                     const clone = newSubject.cloneNode(true);
+                    makeUnDraggable(clone)
                     clone.classList.add('cloned');
-                    clone.dataset.startTime = startTime;
-                    clone.dataset.endTime = endTime;
-                    clone.dataset.day = day;
                     currentCell.appendChild(clone);
                 } else {
                     break;
@@ -183,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Returns the next cell in the timetable.
-     * @param {HTMLElement} cell - The current cell.
+     * @param {Element} cell - The current cell.
      * @returns {HTMLElement|null} - The next cell in the timetable, or null if there is no next cell.
      */
     function getNextCell(cell) {
@@ -261,53 +292,46 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLElement} subjectElement - The subject element to remove.
      */
     function removeModule(subjectElement) {
-        const parentCell = subjectElement.parentNode;
-        parentCell.removeChild(subjectElement);
-
-        let currentCell = parentCell;
+        const subjectId = subjectElement.dataset.subjectId;
+        const parentCell = subjectElement.parentElement;
         const subjectLength = parseFloat(subjectElement.dataset.length);
-        for (let i = 1; i < subjectLength; i++) {
-            currentCell = getNextCell(currentCell);
-            if (currentCell) {
-                // unblock the cell
-                currentCell.classList.remove('blocked');
-                // remove any cloned elements from the cell
-                const clonedElement = currentCell.querySelector('.cloned');
-                if (clonedElement) {
-                    currentCell.removeChild(clonedElement);
-                }
-            }
-        }
+
+        removeSubjectAndClones(parentCell, subjectLength, subjectId);
+
+        // enable draggable for the original subject
+        const originalSubject = document.querySelector(`.subject[data-subject-id="${subjectId}"]`);
+        makeDraggable(originalSubject);
     }
 
     /**
      * Removes a subject and its clones from a cell and unblocks the cells they occupied.
-     * @param {HTMLElement} cell - The cell to remove the subject and its clones from.
+     * @param {Element} cell - The cell to remove the subject and its clones from.
      * @param {number} length - The length of the subject.
+     * @param subjectId
      */
-    function removeSubjectAndClones(cell, length) {
+    function removeSubjectAndClones(cell, length, subjectId) {
         let currentCell = cell;
         let removedSubjects = 0;
 
         while (removedSubjects < length && currentCell) {
-            const subject = currentCell.querySelector('.dropped-subject, .cloned');
-            if (subject) {
-                currentCell.removeChild(subject);
-                currentCell.classList.remove('blocked');
-                removedSubjects++;
-            }
+            const subjects = currentCell.querySelectorAll('.dropped-subject, .cloned');
+            subjects.forEach(subject => {
+                if (subject.dataset.subjectId === subjectId) {
+                    currentCell.removeChild(subject);
+                    removedSubjects++;
+                }
+            });
             currentCell = getNextCell(currentCell);
         }
     }
 
-    function addFieldsetForCourse() {
-        const formTemplate = document.getElementById('course-form-template').content.cloneNode(true);
-        /*
-         * clones a fieldset with the following inputs:
-         * subject_id - id of the course (int - min 0)
-         * start_time - start time of the course (HH:MM - min 08:00, max 21:00)
-         * day - day of the week the course is on
-         */
-
+    function checkIfSubjectIsInTimetable(subjectId) {
+        const subjects = document.querySelectorAll('.dropped-subject');
+        for (let i = 0; i < subjects.length; i++) {
+            if (subjects[i].dataset.subjectId === subjectId) {
+                return true;
+            }
+        }
+        return false;
     }
 });

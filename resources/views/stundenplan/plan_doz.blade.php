@@ -45,7 +45,7 @@
                     <tbody>
                     @foreach ($hours_pairs as $hours)
                         <tr>
-                            <td><?= $hours[0] ?> - <?= $hours[1] ?></td>
+                            <td class="timetable_time"><?= $hours[0] ?> - <?= $hours[1] ?></td>
                             @foreach ($days as $i => $day)
                                 <td class="timetable_data" data-time="<?=$hours[0]?>" data-day="<?=$day?>"></td>
                             @endforeach

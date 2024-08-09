@@ -92,6 +92,13 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
+            {{-- check if user has a dozent --}}
+            @if (Auth::user()->dozent)
+                <x-responsive-nav-link :href="route('stundenplan.show')" :active="request()->routeIs('stundenplan.show')">
+                    {{ __('Mein Stundenplan') }}
+                </x-responsive-nav-link>
+            @endif
+
             @if (Auth::user()->admin)
                 {{-- only show link if user is admin, only admins should be able to create new users, lecturers & courses --}}
                 <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">

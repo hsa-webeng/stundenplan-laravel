@@ -8,6 +8,8 @@
     --green:#B3C91B;
     --green_bg: #e3e4d5;
     --red: #C62828;
+    --orange: #ff9800;
+    --purple: #9c27b0;
 }
 
 /*----------------------------------------------------Admin Pages----------------------------------------------------*/
@@ -213,11 +215,23 @@
     padding: .75rem;
     margin: 1rem 0;
     border-radius: 1rem;
-    background-color: var(--blue_bg);
+    background-color: var(--green);
     cursor: pointer;
     position: relative;
-    box-shadow: 0 2px 0 var(--blue);
+    box-shadow: 0 2px 0 var(--green_bg);
     z-index: 4;
+}
+
+.subject[draggable="false"] {
+    cursor: default;
+}
+
+.sidebar_courses .subject[draggable="false"] {
+    opacity: 0.6;
+}
+
+.subject[draggable="false"]::after {
+    display: none;
 }
 
 .subject::after {
@@ -226,6 +240,7 @@
     width: 0;
     top: 0;
     left: 50%;
+    height: 0;
     border-radius: 0 0 1rem 1rem;
     background-color: var(--blue);
     transition: .1s;
@@ -241,7 +256,7 @@
 
 .dropped-subject {
     width: 98%;
-    height: 100%;
+    height: fit-content;
     padding: .75rem;
     margin: 0 1%;
     border-radius: 0;
@@ -249,6 +264,17 @@
     box-shadow: none;
     z-index: 3;
     cursor: pointer;
+}
+
+.dropped-subject::after {
+    background-color: var(--blue);
+}
+
+.dropped-subject p {
+    width: 105%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .timetable {
@@ -263,10 +289,6 @@
 .timetable_content {
     width: 100%;
     border-collapse: collapse;
-}
-
-.timetable_head {
-    box-shadow: 0 3px 3px var(--green);
 }
 
 .timetable_content th,
@@ -286,8 +308,20 @@
     padding: 0;
 }
 
+.timetable_content .timetable_time {
+    background-color: var(--blue_bg);
+    border-color: #575757;
+}
+
 .timetable_content th {
     border-top: none;
+    background-color: var(--blue);
+    color: white;
+    border-color: #575757;
+}
+
+.hovered {
+    background-color: var(--green_bg);
 }
 
 /*
@@ -306,6 +340,7 @@
 }
 
 .timetable_content td {
+    height: 6.4rem;
     position: relative;
     /* Ermöglicht absolute Positionierung der Module */
 }
@@ -316,13 +351,15 @@
 }
 
 .dropped-subject:nth-child(2) {
-    background-color: #ff9800;
+    background-color: var(--orange);
 }
 
 .dropped-subject:nth-child(3) {
-    background-color: var(--blue);
+    background-color: var(--red);
+    color: white;
 }
 
 .dropped-subject:nth-child(4) {
-    background-color: #9c27b0;
+    background-color: var(--purple);
+    color: white;
 }
