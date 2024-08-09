@@ -5,7 +5,9 @@ use App\Http\Controllers\KursController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\StudiengangController;
+use App\Http\Controllers\StundenController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\DozentMiddleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserDozController;
 
@@ -96,6 +98,14 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/users', [UserDozController::class, 'index'])->name('users.index');
     Route::get('/kurse', [KursController::class, 'index'])->name('kurse.index');
     Route::get('/studiengänge', [StudiengangController::class, 'index'])->name('studiengänge.index');
+});
+
+Route::middleware(['auth', DozentMiddleware::class])->group(function () {
+    /**
+     * Show stundenplan of current dozent
+     */
+    Route::get('/stundenplan', [StundenController::class, 'index'])
+        ->name('stundenplan.show');
 });
 
 require __DIR__.'/auth.php';

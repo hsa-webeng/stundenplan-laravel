@@ -175,3 +175,154 @@
     background-color: var(--blue);
     color: white;
 }
+
+/*----------------------------------------------------Stundenplan----------------------------------------------------*/
+.timetable_page {
+    display: grid;
+    grid-template-columns: 25% 75%;
+}
+
+.timetable_page:first-of-type {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.sidebar {
+    box-shadow: 0 0 10px rgba(114, 114, 113, 0.5);
+    border-radius: 2rem;
+    padding: 1rem;
+    margin-right: 1em;
+    background-color: white;
+    display: inline-block;
+    height: fit-content;
+}
+
+.sidebar_header {
+    padding: 0 .9rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.sidebar_courses {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: .75rem .75rem 0;
+}
+
+.subject {
+    padding: .75rem;
+    margin: 1rem 0;
+    border-radius: 1rem;
+    background-color: var(--blue_bg);
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 2px 0 var(--blue);
+    z-index: 4;
+}
+
+.subject::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    top: 0;
+    left: 50%;
+    border-radius: 0 0 1rem 1rem;
+    background-color: var(--blue);
+    transition: .1s;
+}
+
+.subject:hover::after,
+.subject:focus-within::after {
+    width: 70%;
+    left: 15%;
+    height: .3rem;
+    transition: .1s;
+}
+
+.dropped-subject {
+    width: 98%;
+    height: 100%;
+    padding: .75rem;
+    margin: 0 1%;
+    border-radius: 0;
+    background-color: var(--blue_bg);
+    box-shadow: none;
+    z-index: 3;
+    cursor: pointer;
+}
+
+.timetable {
+    height: 100%;
+    background-color: #fff;
+    display: inline-block;
+    border-radius: 2rem;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(114, 114, 113, 0.5);
+}
+
+.timetable_content {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.timetable_head {
+    box-shadow: 0 3px 3px var(--green);
+}
+
+.timetable_content th,
+.timetable_content td {
+    border: 2px solid #838383;
+    padding: .7rem;
+    text-align: center;
+    position: relative;
+    max-width: 40px;
+}
+
+.timetable_content .timetable_data:empty {
+    padding: .7rem;
+}
+
+.timetable_content .timetable_data {
+    padding: 0;
+}
+
+.timetable_content th {
+    border-top: none;
+}
+
+/*
+ * remove outer borders
+ */
+.timetable_content th:first-of-type,
+.timetable_content th:last-of-type,
+.timetable_content td:first-of-type,
+.timetable_content td:last-of-type {
+    border-left: none;
+    border-right: none;
+}
+
+.timetable_content tr:last-of-type td {
+    border-bottom: none;
+}
+
+.timetable_content td {
+    position: relative;
+    /* Ermöglicht absolute Positionierung der Module */
+}
+
+/* Beispielfarben für Fächer in der Tabelle */
+.dropped-subject:nth-child(1) {
+    background-color: var(--green);
+}
+
+.dropped-subject:nth-child(2) {
+    background-color: #ff9800;
+}
+
+.dropped-subject:nth-child(3) {
+    background-color: var(--blue);
+}
+
+.dropped-subject:nth-child(4) {
+    background-color: #9c27b0;
+}
