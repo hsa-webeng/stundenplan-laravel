@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // create clones for multi-cell subjects
                 let currentCell = this;
-                for (let i = 1; i < subjectLength; i++) {
+                for (let i = 1; i < subjectLength && currentCell; i++) {
                     currentCell = getNextCell(currentCell);
                     if (currentCell) {
                         const clone = newSubject.cloneNode(true);
@@ -178,11 +178,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         clone.classList.add('cloned');
                         currentCell.appendChild(clone);
                     } else {
+                        console.warn('Reached end of timetable while creating clones');
                         break;
                     }
                 }
 
-                highlightOriginal(newSubject);
+                reassignAllColors();
             }
 
             this.classList.remove('hovered');
@@ -290,17 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /**
-         * Highlights the original subject element and removes the highlight from all other subjects.
-         * @param {HTMLElement} subjectElement - The subject element to highlight.
-         */
-        function highlightOriginal(subjectElement) {
-            subjects.forEach(subject => {
-                subject.classList.remove('highlighted');
-            });
-            subjectElement.classList.add('highlighted');
-        }
-
-        /**
          * Removes a subject element from its parent cell and unblocks the cells it occupied.
          * @param {HTMLElement} subjectElement - The subject element to remove.
          */
@@ -318,8 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const originalSubject = document.querySelector(`.subject[data-subject-id="${subjectId}"]`);
             makeDraggable(originalSubject);
 
-            // Reassign colors for adjacent courses after removal
-            reassignAdjacentColors(subjectElement);
+            // reassign colors for all courses
+            reassignAllColors();
         }
 
         /**
@@ -367,19 +357,19 @@ document.addEventListener('DOMContentLoaded', () => {
         function assignColorToSubject(subject, startCell) {
             const subjectId = subject.dataset.subjectId;
             const subjectLength = parseInt(subject.dataset.length);
-            let colorClass = COLOR_DEFAULT;
+            let colorClass;
 
-            // check for adjacent courses and conflicts
-            const adjacentCourse = checkAdjacentCourses(startCell, subjectLength);
-            const hasConflict = checkConflictingCourses(startCell, subjectLength);
+            // check for conflicts
+            const conflictingCourses = getConflictingCourses(startCell, subjectLength);
 
-            if (hasConflict) {
-                // assign alternating conflict colors
-                const conflictColors = Object.values(colorAssignments).filter(c => c === COLOR_CONFLICT_1 || c === COLOR_CONFLICT_2);
-                colorClass = conflictColors.length % 2 === 0 ? COLOR_CONFLICT_1 : COLOR_CONFLICT_2;
-            } else if (adjacentCourse) {
+            if (conflictingCourses.length > 1) {
+                // determine the color based on the position in the conflicting group
+                const conflictIndex = conflictingCourses.findIndex(course => course.dataset.subjectId === subjectId);
+                colorClass = conflictIndex % 2 === 0 ? COLOR_CONFLICT_1 : COLOR_CONFLICT_2;
+            } else {
                 // alternate between default and alternate color
-                colorClass = adjacentCourse.classList.contains(COLOR_DEFAULT) ? COLOR_ALTERNATE : COLOR_DEFAULT;
+                const adjacentCourse = checkAdjacentCourses(startCell, subjectLength);
+                colorClass = adjacentCourse && adjacentCourse.classList.contains(COLOR_DEFAULT) ? COLOR_ALTERNATE : COLOR_DEFAULT;
             }
 
             // assign the color class
@@ -392,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /**
-         * Check for adjacent courses above and below the course being added
+         * Check for adjacent courses above and below the course being added. Return the first adjacent course found.
          * @param startCell
          * @param length
          * @returns {Element|null}
@@ -401,13 +391,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let currentCell = startCell;
             const column = Array.from(currentCell.parentNode.children).indexOf(currentCell);
 
-            // Check the cell above the first cell of the course
+            // check the cell above the first cell of the course
             const cellAbove = currentCell.parentNode.previousElementSibling?.children[column];
             if (cellAbove && cellAbove.querySelector('.dropped-subject')) {
                 return cellAbove.querySelector('.dropped-subject');
             }
 
-            // Check the cell below the last cell of the course
+            // check the cell below the last cell of the course
             for (let i = 1; i < length; i++) {
                 currentCell = getNextCell(currentCell);
             }
@@ -417,25 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             return null;
-        }
-
-        /**
-         * Check for conflicting courses in the cells the course will occupy
-         * @param startCell
-         * @param length
-         * @returns {boolean}
-         */
-        function checkConflictingCourses(startCell, length) {
-            let currentCell = startCell;
-            for (let i = 0; i < length; i++) {
-                const existingSubjects = currentCell.querySelectorAll('.dropped-subject');
-                // count the course being placed (1) plus any existing courses
-                if (existingSubjects.length + 1 > 1) {
-                    return true; // conflict found
-                }
-                currentCell = getNextCell(currentCell);
-            }
-            return false; // no conflict
         }
 
         /**
@@ -458,31 +429,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /**
-         * Reassign colors for adjacent courses after removal
-         * @param removedSubject
+         * Reassign colors to all subjects in the timetable.
          */
-        function reassignAdjacentColors(removedSubject) {
-            const startCell = removedSubject.parentElement;
-            const column = Array.from(startCell.parentNode.children).indexOf(startCell);
-            const length = parseInt(removedSubject.dataset.length);
+        function reassignAllColors() {
+            const droppedSubjects = document.querySelectorAll('.dropped-subject:not(.cloned)');
 
-            // Check and reassign color for the course above
-            const cellAbove = startCell.parentNode.previousElementSibling?.children[column];
-            if (cellAbove) {
-                const subjectAbove = cellAbove.querySelector('.dropped-subject');
-                if (subjectAbove) assignColorToSubject(subjectAbove, cellAbove);
+            // first pass: Identify conflicting groups
+            const conflictGroups = {};
+            droppedSubjects.forEach(subject => {
+                const startCell = subject.closest('td');
+                const conflictingCourses = getConflictingCourses(startCell, parseInt(subject.dataset.length));
+                if (conflictingCourses.length > 1) {
+                    const key = conflictingCourses.map(c => c.dataset.subjectId).sort().join('-');
+                    if (!conflictGroups[key]) {
+                        conflictGroups[key] = conflictingCourses;
+                    }
+                }
+            });
+
+            // second pass: Assign colors
+            droppedSubjects.forEach(subject => {
+                const startCell = subject.closest('td');
+                assignColorToSubject(subject, startCell);
+            });
+
+            // third pass: Ensure alternating colors for conflict groups
+            Object.values(conflictGroups).forEach((group) => {
+                group.forEach((subject, index) => {
+                    const colorClass = index % 2 === 0 ? COLOR_CONFLICT_1 : COLOR_CONFLICT_2;
+                    subject.classList.remove(COLOR_DEFAULT, COLOR_ALTERNATE, COLOR_CONFLICT_1, COLOR_CONFLICT_2);
+                    subject.classList.add(colorClass);
+                    colorAssignments[subject.dataset.subjectId] = colorClass;
+                    applyColorToClones(subject, subject.closest('td'), parseInt(subject.dataset.length));
+                });
+            });
+        }
+
+        /**
+         * Get all subjects that conflict with a subject being added to the timetable
+         * @param startCell
+         * @param length
+         * @returns {*[]}
+         */
+        function getConflictingCourses(startCell, length) {
+            let conflictingCourses = [];
+            let currentCell = startCell;
+
+            for (let i = 0; i < length && currentCell; i++) {
+                const existingSubjects = Array.from(currentCell.querySelectorAll('.dropped-subject:not(.cloned)'));
+                conflictingCourses = conflictingCourses.concat(existingSubjects);
+                currentCell = getNextCell(currentCell);
             }
 
-            // Check and reassign color for the course below
-            let lastCell = startCell;
-            for (let i = 1; i < length; i++) {
-                lastCell = getNextCell(lastCell);
-            }
-            const cellBelow = lastCell.parentNode.nextElementSibling?.children[column];
-            if (cellBelow) {
-                const subjectBelow = cellBelow.querySelector('.dropped-subject');
-                if (subjectBelow) assignColorToSubject(subjectBelow, cellBelow);
-            }
+            // remove duplicates (in case of multi-cell subjects)
+            return Array.from(new Set(conflictingCourses));
         }
     }
 });
