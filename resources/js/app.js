@@ -19,6 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const subjects = document.querySelectorAll('.subject');
         const timetableCells = document.querySelectorAll('.timetable td');
 
+        const COLOR_DEFAULT = 'color-1';
+        const COLOR_ALTERNATE = 'color-2';
+        const COLOR_CONFLICT_1 = 'color-3';
+        const COLOR_CONFLICT_2 = 'color-4';
+
+        let colorAssignments = {};
+
         // make each subject draggable.
         subjects.forEach(subject => {
             makeDraggable(subject);
@@ -140,14 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
 
-                if (newSubject === null) {
-                    return;
-                }
-
-                // Update the subject's time and day information
+                // update the subject's time and day information
                 newSubject.dataset.startTime = startTime;
                 newSubject.dataset.endTime = endTime;
                 newSubject.dataset.day = day.toString();
+
+                // assign or reassign color
+                assignColorToSubject(newSubject, this);
 
                 // update or create the time span
                 let timeSpan = newSubject.querySelector('.time-span');
@@ -168,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentCell = getNextCell(currentCell);
                     if (currentCell) {
                         const clone = newSubject.cloneNode(true);
-                        makeUnDraggable(clone)
+                        makeUnDraggable(clone);
                         clone.classList.add('cloned');
                         currentCell.appendChild(clone);
                     } else {
@@ -305,9 +311,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             removeSubjectAndClones(parentCell, subjectLength, subjectId);
 
+            // remove color assignment when the subject is removed from the timetable
+            delete colorAssignments[subjectId];
+
             // enable draggable for the original subject
             const originalSubject = document.querySelector(`.subject[data-subject-id="${subjectId}"]`);
             makeDraggable(originalSubject);
+
+            // Reassign colors for adjacent courses after removal
+            reassignAdjacentColors(subjectElement);
         }
 
         /**
@@ -340,6 +352,137 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             return false;
+        }
+
+
+        /*
+         * -------- TIMETABLE COLORS --------
+         */
+
+        /**
+         * Assigns a color to a subject based on its position in the timetable.
+         * @param subject
+         * @param startCell
+         */
+        function assignColorToSubject(subject, startCell) {
+            const subjectId = subject.dataset.subjectId;
+            const subjectLength = parseInt(subject.dataset.length);
+            let colorClass = COLOR_DEFAULT;
+
+            // check for adjacent courses and conflicts
+            const adjacentCourse = checkAdjacentCourses(startCell, subjectLength);
+            const hasConflict = checkConflictingCourses(startCell, subjectLength);
+
+            if (hasConflict) {
+                // assign alternating conflict colors
+                const conflictColors = Object.values(colorAssignments).filter(c => c === COLOR_CONFLICT_1 || c === COLOR_CONFLICT_2);
+                colorClass = conflictColors.length % 2 === 0 ? COLOR_CONFLICT_1 : COLOR_CONFLICT_2;
+            } else if (adjacentCourse) {
+                // alternate between default and alternate color
+                colorClass = adjacentCourse.classList.contains(COLOR_DEFAULT) ? COLOR_ALTERNATE : COLOR_DEFAULT;
+            }
+
+            // assign the color class
+            colorAssignments[subjectId] = colorClass;
+            subject.classList.remove(COLOR_DEFAULT, COLOR_ALTERNATE, COLOR_CONFLICT_1, COLOR_CONFLICT_2);
+            subject.classList.add(colorClass);
+
+            // apply the same color to all clones
+            applyColorToClones(subject, startCell, subjectLength);
+        }
+
+        /**
+         * Check for adjacent courses above and below the course being added
+         * @param startCell
+         * @param length
+         * @returns {Element|null}
+         */
+        function checkAdjacentCourses(startCell, length) {
+            let currentCell = startCell;
+            const column = Array.from(currentCell.parentNode.children).indexOf(currentCell);
+
+            // Check the cell above the first cell of the course
+            const cellAbove = currentCell.parentNode.previousElementSibling?.children[column];
+            if (cellAbove && cellAbove.querySelector('.dropped-subject')) {
+                return cellAbove.querySelector('.dropped-subject');
+            }
+
+            // Check the cell below the last cell of the course
+            for (let i = 1; i < length; i++) {
+                currentCell = getNextCell(currentCell);
+            }
+            const cellBelow = currentCell?.parentNode.nextElementSibling?.children[column];
+            if (cellBelow && cellBelow.querySelector('.dropped-subject')) {
+                return cellBelow.querySelector('.dropped-subject');
+            }
+
+            return null;
+        }
+
+        /**
+         * Check for conflicting courses in the cells the course will occupy
+         * @param startCell
+         * @param length
+         * @returns {boolean}
+         */
+        function checkConflictingCourses(startCell, length) {
+            let currentCell = startCell;
+            for (let i = 0; i < length; i++) {
+                const existingSubjects = currentCell.querySelectorAll('.dropped-subject');
+                // count the course being placed (1) plus any existing courses
+                if (existingSubjects.length + 1 > 1) {
+                    return true; // conflict found
+                }
+                currentCell = getNextCell(currentCell);
+            }
+            return false; // no conflict
+        }
+
+        /**
+         * Apply the color of the original subject to all its clones
+         * @param subject
+         * @param startCell
+         * @param length
+         */
+        function applyColorToClones(subject, startCell, length) {
+            const colorClass = colorAssignments[subject.dataset.subjectId];
+            let currentCell = startCell;
+            for (let i = 0; i < length; i++) {
+                const clone = currentCell.querySelector(`.cloned[data-subject-id="${subject.dataset.subjectId}"]`);
+                if (clone) {
+                    clone.classList.remove(COLOR_DEFAULT, COLOR_ALTERNATE, COLOR_CONFLICT_1, COLOR_CONFLICT_2);
+                    clone.classList.add(colorClass);
+                }
+                currentCell = getNextCell(currentCell);
+            }
+        }
+
+        /**
+         * Reassign colors for adjacent courses after removal
+         * @param removedSubject
+         */
+        function reassignAdjacentColors(removedSubject) {
+            const startCell = removedSubject.parentElement;
+            const column = Array.from(startCell.parentNode.children).indexOf(startCell);
+            const length = parseInt(removedSubject.dataset.length);
+
+            // Check and reassign color for the course above
+            const cellAbove = startCell.parentNode.previousElementSibling?.children[column];
+            if (cellAbove) {
+                const subjectAbove = cellAbove.querySelector('.dropped-subject');
+                if (subjectAbove) assignColorToSubject(subjectAbove, cellAbove);
+            }
+
+            // Check and reassign color for the course below
+            let lastCell = startCell;
+            for (let i = 1; i < length; i++) {
+                lastCell = getNextCell(lastCell);
+            }
+            const cellBelow = lastCell.parentNode.nextElementSibling?.children[column];
+            if (cellBelow) {
+                const subjectBelow = cellBelow.querySelector('.dropped-subject');
+                if (subjectBelow) assignColorToSubject(subjectBelow, cellBelow);
+            }
         }
     }
 });

@@ -342,24 +342,24 @@
 .timetable_content td {
     height: 6.4rem;
     position: relative;
-    /* Ermöglicht absolute Positionierung der Module */
 }
 
-/* Beispielfarben für Fächer in der Tabelle */
-.dropped-subject:nth-child(1) {
+.color-1 {
     background-color: var(--green);
+    color: black;
 }
 
-.dropped-subject:nth-child(2) {
+.color-2 {
     background-color: var(--orange);
+    color: black;
 }
 
-.dropped-subject:nth-child(3) {
+.color-3 {
     background-color: var(--red);
     color: white;
 }
 
-.dropped-subject:nth-child(4) {
+.color-4 {
     background-color: var(--purple);
     color: white;
 }
