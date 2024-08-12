@@ -151,6 +151,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /**
+         * Checks if a cell is occupied by a subject (exclude self).
+         * @param {Element} startCell
+         * @param {int} length
+         * @param id
+         * @returns {boolean}
+         */
+        function isCellOccupied(startCell, length, id) {
+            let currentCell = startCell;
+            for (let i = 0; i < length && currentCell; i++) {
+                if (currentCell.querySelector('.dropped-subject') && currentCell.querySelector('.dropped-subject').dataset.subjectId !== id) {
+                    return true;
+                }
+                currentCell = getNextCell(currentCell);
+            }
+            return false;
+        }
+
+        /**
          * Handles the drop event when a subject is dropped onto a timetable cell.
          * @param {DragEvent} event - The drag event.
          */
@@ -162,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // check if the subject is already in the timetable
             const isSubjectInTimetable = checkIfSubjectIsInTimetable(draggedSubject.dataset.subjectId);
 
-            if (isValidDropTarget(this, subjectLength)) {
+            if (isValidDropTarget(this, subjectLength) && !isCellOccupied(this, subjectLength, draggedSubject.dataset.subjectId)) {
                 let newSubject = null;
 
                 if (isSubjectInTimetable && draggedSubject.classList.contains('dropped-subject')) {
@@ -307,6 +325,8 @@ document.addEventListener('DOMContentLoaded', () => {
          */
         function calculateEndTime(startTime, length) {
 
+            // TODO: this function can produce incorrect results, e.g. for courses with a length of >= 4
+
             const [startHour, startMinute] = startTime.split(':').map(Number);
 
             let additionalMinutes = 0;
@@ -319,10 +339,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let totalMinutes = startMinute + (length * 90) + additionalMinutes;
-            if (length >= 2 && startTime === '11:45') {
-                totalMinutes += 45;
-            }
+
             let endHour = startHour + Math.floor(totalMinutes / 60);
+
+            // between 13.15 and 14.15, the break is 60 minutes
+            if (startHour < 13 && endHour >= 14) {
+                totalMinutes += 45;
+                // recalculate endHour
+                endHour = startHour + Math.floor(totalMinutes / 60);
+            }
 
             if (endHour < 10) {
                 endHour = '0' + endHour;
@@ -616,15 +641,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('timetableForm');
             submitTimetableForm(form,
                 () => {
-                    // Success callback: redirect to the anchor's href
-                    window.location.href = submitTimetable.href;
+                    // Success callback: redirect to the anchor's href after 1 second
+                    setTimeout(() => {
+                        window.location.href = submitTimetable.href;
+                    }, 1000);
                 },
                 () => {
-                    // Error callback: show a more specific error message
+                    // Error callback
                     showAlert('Fehler beim Speichern des Stundenplans. Bitte speichern Sie manuell, bevor Sie fortfahren.', 'error');
                 }
             );
         });
 
+        // event listener for check_timetable anchor
+        const checkTimetable = document.getElementById('check_timetable');
+        checkTimetable.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const form = document.getElementById('timetableForm');
+            submitTimetableForm(form,
+                () => {
+                    // Success callback: redirect to the anchor's href after 1 second
+                    setTimeout(() => {
+                        window.location.href = checkTimetable.href;
+                    }, 1000);
+                },
+                () => {
+                    // Error callback
+                    showAlert('Fehler beim Speichern des Stundenplans. Bitte speichern Sie manuell, bevor Sie fortfahren.', 'error');
+                }
+            );
+        });
     }
 });

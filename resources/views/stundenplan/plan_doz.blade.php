@@ -1,10 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            @if (Route::currentRouteName() === 'stundenplan.my')
-                {{ __('Mein Stundenplan') }}
-            @else
-                {{ __('Stundenplan von ') }} {{ $dozent->dozent_nachname }}, {{ $dozent->dozent_vorname }}
+            @if ($dozent != null)
+                @if (Route::currentRouteName() === 'stundenplan.my')
+                    {{ __('Mein Stundenplan') }}
+                @else
+                    {{ __('Stundenplan von ') }} {{ $dozent->dozent_nachname }}, {{ $dozent->dozent_vorname }}
+               @endif
+            @elseif ($stdg != null)
+                {{ __('Stundenplan für ') }} {{ $stdg['kürzel'] }} {{ $stdg['semester'] }}
             @endif
         </h2>
     </x-slot>
@@ -60,13 +64,21 @@
                                                 <div class="subject dragging dropped-subject color-1" data-subject-id="{{ $stunde->kurs->id }}" data-length="{{ $stunde->kurs->sws / 2 }}" data-start-time="{{ $stunde->block_start }}" data-end-time="{{ $stunde->block_end }}" data-day="{{ $stunde->wochentag }}" data-stunde-id="{{ $stunde->id }}">
                                                     <div class="time-span">{{ $stunde->block_start }} - {{ $stunde->block_end }}</div>
                                                     <p class="course_name">{{ $stunde->kurs->kurs_name }}</p>
-                                                    <p class="course_stdg">{{ $stunde->kurs->studiengang->stdg_kürzel }} {{ $stunde->kurs->semester }}</p>
+                                                    @if ($dozent !== null)
+                                                        <p class="course_stdg">{{ $stunde->kurs->studiengang->stdg_kürzel }} {{ $stunde->kurs->semester }}</p>
+                                                    @else
+                                                        <p class="course_stdg">{{ $stunde->kurs->dozent->dozent_nachname }}, {{ $stunde->kurs->dozent->dozent_vorname }}</p>
+                                                    @endif
                                                 </div>
                                             @elseif($stunde->wochentag == $i && strtotime($stunde->block_end) > strtotime($hours[0]) && strtotime($stunde->block_start) <= strtotime($hours[1]))
                                                 <div class="subject dragging dropped-subject cloned color-1" data-subject-id="{{ $stunde->kurs->id }}" data-length="{{ $stunde->kurs->sws / 2 }}" data-start-time="{{ $stunde->block_start }}" data-end-time="{{ $stunde->block_end }}" data-day="{{ $stunde->wochentag }}">
                                                     <div class="time-span">{{ $stunde->block_start }} - {{ $stunde->block_end }}</div>
                                                     <p class="course_name">{{ $stunde->kurs->kurs_name }}</p>
-                                                    <p class="course_stdg">{{ $stunde->kurs->studiengang->stdg_kürzel }} {{ $stunde->kurs->semester }}</p>
+                                                    @if ($dozent !== null)
+                                                        <p class="course_stdg">{{ $stunde->kurs->studiengang->stdg_kürzel }} {{ $stunde->kurs->semester }}</p>
+                                                    @else
+                                                        <p class="course_stdg">{{ $stunde->kurs->dozent->dozent_nachname }}, {{ $stunde->kurs->dozent->dozent_vorname }}</p>
+                                                    @endif
                                                 </div>
                                             @endif
                                         @endforeach

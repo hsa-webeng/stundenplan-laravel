@@ -15,10 +15,6 @@ use App\Http\Controllers\UserDozController;
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');})
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -128,9 +124,13 @@ Route::middleware('auth')->group(function () {
      * Show timetable
      * (mode: 0 for dozent, 1 for studiengang)
      */
-    Route::get('/stundenplan/1/{id}/{semester}', [StundenController::class, 'index'])
-        ->where(['id' => '[0-9]+', 'semester' => '[0-9]+'])
+    Route::get('/stundenplan/{mode}/{id}/{semester}', [StundenController::class, 'index'])
+        ->where(['id' => '[0-9]+', 'semester' => '[0-9]+' , 'mode' => '[1]'])
         ->name('stundenplan.show_sem');
+
+
+    Route::get('/dashboard', [HomeController::class, 'dashboard'])
+        ->name('dashboard');
 });
 
 

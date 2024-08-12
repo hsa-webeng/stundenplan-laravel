@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dozent;
+use App\Models\Studiengang;
 use App\Models\Stunde;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -44,24 +45,58 @@ class StundenController extends Controller
 
             $stunden = $dozent->load('kurse.stunden')->kurse->pluck('stunden')->collapse();
 
-            // format block_start and block_end to HH:mm
+            // fetch all stunden for the studiengang and semester of each kurs
+            $allStunden = Stunde::whereHas('kurs', function ($query) use ($dozent) {
+                $query->whereIn('stdg_id', $dozent->kurse->pluck('stdg_id'))
+                    ->whereIn('semester', $dozent->kurse->pluck('semester'));
+            })->with(['kurs.dozent', 'kurs.studiengang'])->get();
+
+            // detect conflicts and append them to stunden
+            $conflictingStunden = collect();
             foreach ($stunden as $stunde) {
-                $stunde->block_start = date('H:i', strtotime($stunde->block_start));
-                $stunde->block_end = date('H:i', strtotime($stunde->block_end));
+                $conflicts = $allStunden->filter(function ($s) use ($stunde) {
+                    return $s->id !== $stunde->id &&
+                        $s->wochentag === $stunde->wochentag &&
+                        $s->kurs->stdg_id === $stunde->kurs->stdg_id &&
+                        $s->kurs->semester === $stunde->kurs->semester &&
+                        (
+                            ($s->block_start < $stunde->block_end && $s->block_end > $stunde->block_start) ||
+                            ($stunde->block_start < $s->block_end && $stunde->block_end > $s->block_start)
+                        );
+                });
+                $conflictingStunden = $conflictingStunden->concat($conflicts);
             }
+
+            // merge original stunden with conflicting stunden
+            $stunden = $stunden->concat($conflictingStunden);
+
+            $stdg = null;
         }
         // get all kurse of the selected studiengang
         else if ($mode === 1) {
             $dozent = null;
+            $stdg = ['kürzel' => Studiengang::find($id)->stdg_kürzel, 'semester' => $semester];
+
+            // get all stunden of all kurses of the selected studiengang
+            $stunden = Stunde::whereHas('kurs', function ($query) use ($semester, $id) {
+                $query->where('semester', $semester)
+                    ->where('stdg_id', $id);
+            })->with('kurs')->get();
         }
         else {
             // redirect to users.index
             return redirect()->route('users.index')->with('error', 'Ungültiger Modus.');
         }
 
+        // format block_start and block_end to HH:mm
+        foreach ($stunden as $stunde) {
+            $stunde->block_start = date('H:i', strtotime($stunde->block_start));
+            $stunde->block_end = date('H:i', strtotime($stunde->block_end));
+        }
+
         $days = $this->days;
         $hours_pairs = array_map(null, $this->start_times, $this->end_times);
-        return view('stundenplan.plan_doz', compact('days', 'hours_pairs', 'stunden', 'dozent'));
+        return view('stundenplan.plan_doz', compact('days', 'hours_pairs', 'stunden', 'dozent', 'stdg'));
     }
 
     public function parseTimetableJson(Request $request): JsonResponse
@@ -92,6 +127,8 @@ class StundenController extends Controller
         ];
 
         // TODO: check if start_time & end_time are the correct for the sws of the kurs
+
+        // TODO: check if stunden overlap
 
         $validator = Validator::make($timetableState, $rules);
 
@@ -276,11 +313,13 @@ class StundenController extends Controller
             }
 
             $dozent->plan_abgegeben = true;
+            $message = 'Stundenplan erfolgreich abgegeben.';
         } else {
             $dozent->plan_abgegeben = false;
+            $message = 'Stundenplan erfolgreich zurückgezogen.';
         }
         $dozent->save();
 
-        return redirect()->route('stundenplan.my')->with('success', 'Stundenplan erfolgreich abgegeben.');
+        return redirect()->route('stundenplan.my')->with('success', $message);
     }
 }

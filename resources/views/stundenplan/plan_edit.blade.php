@@ -18,6 +18,7 @@
                             {{ __('Speichern') }}
                         </x-primary-button>
                     </form>
+                    <x-primary-button-link id="check_timetable" href="{{ route('stundenplan.my') }}" class="submit">{{ __('Konflikte prüfen') }}</x-primary-button-link>
                     <x-danger-button-link id="submit_timetable" class="submit" href="{{ route('stundenplan.submit', 1) }}">Plan abgeben</x-danger-button-link>
                 </div>
             </div>

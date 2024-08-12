@@ -114,7 +114,17 @@ class KursController extends Controller
             return redirect(route('kurse.index'))->with('info', 'Es wurden keine Änderungen am Kurs "' . $request->kurs_name . '" vorgenommen.');
         }
 
+        // remove any stunden of the kurs
+        $kurs->stunden()->delete();
         $kurs->save();
+
+        // set plan_abgegeben of the dozent to false
+        $dozent = Dozent::find($kurs->doz_id);
+        if ($dozent->plan_abgegeben === 1) {
+            $dozent->plan_abgegeben = 0;
+            $dozent->save();
+        }
+
         return redirect(route('kurse.index'))->with('success', 'Der Kurs "' . $request->kurs_name . '" wurde erfolgreich aktualisiert.');
     }
 
