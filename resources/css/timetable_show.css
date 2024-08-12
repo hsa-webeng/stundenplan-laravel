@@ -1,0 +1,140 @@
+/*----------------------------------------------------Stundenplan----------------------------------------------------*/
+.timetable_page {
+
+}
+
+.subject {
+    position: relative;
+}
+
+.subject::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    top: 0;
+    left: 50%;
+    height: 0;
+    border-radius: 0 0 1rem 1rem;
+    background-color: var(--blue);
+    transition: .1s;
+}
+
+.subject:hover::after,
+.subject:focus-within::after {
+    width: 70%;
+    left: 15%;
+    height: .3rem;
+    transition: .1s;
+}
+
+.dropped-subject {
+    width: 98%;
+    height: fit-content;
+    padding: .75rem;
+    margin: 0 1%;
+    border-radius: 0;
+    background-color: var(--blue_bg);
+    box-shadow: none;
+    z-index: 3;
+}
+
+.dropped-subject::after {
+    background-color: var(--blue);
+}
+
+.dropped-subject p {
+    width: 105%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.timetable {
+    height: 100%;
+    background-color: #fff;
+    border-radius: 2rem;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(114, 114, 113, 0.5);
+}
+
+.timetable_content {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.timetable_content th,
+.timetable_content td {
+    border: 2px solid #838383;
+    padding: .7rem;
+    text-align: center;
+    position: relative;
+    max-width: 40px;
+}
+
+.timetable_content .timetable_data:empty {
+    padding: .7rem;
+}
+
+.timetable_content .timetable_data {
+    padding: 0;
+}
+
+.timetable_content .timetable_time {
+    background-color: var(--blue_bg);
+    border-color: #575757;
+}
+
+.timetable_content th {
+    border-top: none;
+    background-color: var(--blue);
+    color: white;
+    border-color: #575757;
+}
+
+.hovered {
+    background-color: var(--green_bg);
+}
+
+/*
+ * remove outer borders
+ */
+.timetable_content th:first-of-type,
+.timetable_content th:last-of-type,
+.timetable_content td:first-of-type,
+.timetable_content td:last-of-type {
+    border-left: none;
+    border-right: none;
+}
+
+.timetable_content tr:last-of-type td {
+    border-bottom: none;
+}
+
+.timetable_content td {
+    height: 6.4rem;
+    position: relative;
+}
+
+.color-1 {
+    background-color: var(--green);
+    color: black;
+}
+
+.color-2 {
+    background-color: var(--orange);
+    color: black;
+}
+
+.color-3 {
+    background-color: var(--red);
+    color: white;
+}
+
+.color-4 {
+    background-color: var(--purple);
+    color: white;
+}
+
+.submit {
+    box-shadow: 0 0 10px rgba(114, 114, 113, 0.5);
+}

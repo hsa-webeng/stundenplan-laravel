@@ -19,7 +19,7 @@
                     </x-nav-link>
                     {{-- check if user has a dozent --}}
                     @if (Auth::user()->dozent)
-                        <x-nav-link :href="route('stundenplan.show')" :active="request()->routeIs('stundenplan.show')">
+                        <x-nav-link :href="route('stundenplan.my')" :active="request()->routeIs('stundenplan.my')">
                             {{ __('Mein Stundenplan') }}
                         </x-nav-link>
                     @endif
@@ -30,7 +30,7 @@
                             {{ __('Benutzer & Dozenten') }}
                         </x-nav-link>
                         <x-nav-link :href="route('kurse.index')" :active="request()->routeIs('kurse.index')">
-                            {{ __('Kurse') }}
+                            {{ __('Kurszuordnung') }}
                         </x-nav-link>
                         <x-nav-link :href="route('studiengänge.index')" :active="request()->routeIs('studiengänge.index')">
                             {{ __('Studiengänge') }}
@@ -55,7 +55,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            {{ __('Profil') }}
                         </x-dropdown-link>
 
                         {{-- Authentication --}}
@@ -65,7 +65,7 @@
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                {{ __('Abmelden') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -94,7 +94,7 @@
 
             {{-- check if user has a dozent --}}
             @if (Auth::user()->dozent)
-                <x-responsive-nav-link :href="route('stundenplan.show')" :active="request()->routeIs('stundenplan.show')">
+                <x-responsive-nav-link :href="route('stundenplan.my')" :active="request()->routeIs('stundenplan.my')">
                     {{ __('Mein Stundenplan') }}
                 </x-responsive-nav-link>
             @endif
@@ -106,7 +106,7 @@
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('kurse.index')" :active="request()->routeIs('kurse.index')">
-                    {{ __('Kurse') }}
+                    {{ __('Kurszuordnung') }}
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('studiengänge.index')" :active="request()->routeIs('studiengänge.index')">
@@ -124,7 +124,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    {{ __('Profil') }}
                 </x-responsive-nav-link>
 
                 {{-- Authentication --}}
@@ -134,7 +134,7 @@
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                        {{ __('Abmelden') }}
                     </x-responsive-nav-link>
                 </form>
             </div>

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dozent;
 use App\Models\Stunde;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -20,21 +22,46 @@ class StundenController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index($mode = 0, $id = null, $semester = null): RedirectResponse|View
     {
-        // get all stunden of the kurse of the current dozent
-        $dozent = Auth::user()->dozent;
-        $stunden = $dozent->load('kurse.stunden')->kurse->pluck('stunden')->collapse();
+        if ($mode === 'my') {
+            $mode = 0;
+            $id = null;
+            $semester = null;
+        }
 
-        // format block_start and block_end to HH:mm
-        foreach ($stunden as $stunde) {
-            $stunde->block_start = date('H:i', strtotime($stunde->block_start));
-            $stunde->block_end = date('H:i', strtotime($stunde->block_end));
+        $mode = (int) $mode;
+        $id = $id !== null ? (int) $id : null;
+        $semester = $semester !== null ? (int) $semester : null;
+
+        // get all stunden of the kurse of dozent
+        if ($mode === 0) {
+            if ($id === null) { // when no dozent id is given, use the current dozent
+                $dozent = Auth::user()->dozent;
+            } else { // when dozent id is given, use the dozent with the given id
+                $dozent = Dozent::find($id);
+            }
+
+            $stunden = $dozent->load('kurse.stunden')->kurse->pluck('stunden')->collapse();
+
+            // format block_start and block_end to HH:mm
+            foreach ($stunden as $stunde) {
+                $stunde->block_start = date('H:i', strtotime($stunde->block_start));
+                $stunde->block_end = date('H:i', strtotime($stunde->block_end));
+            }
+        }
+        // get all kurse of the selected studiengang
+        else if ($mode === 1) {
+            $dozent = null;
+        }
+        else {
+            // redirect to users.index
+            return redirect()->route('users.index')->with('error', 'Ungültiger Modus.');
         }
 
         $days = $this->days;
         $hours_pairs = array_map(null, $this->start_times, $this->end_times);
-        return view('stundenplan.plan_doz', compact('days', 'hours_pairs', 'stunden'));
+        return view('stundenplan.plan_doz', compact('days', 'hours_pairs', 'stunden', 'dozent'));
     }
 
     public function parseTimetableJson(Request $request): JsonResponse
@@ -63,6 +90,8 @@ class StundenController extends Controller
             ],
             '*.stunde_id' => 'nullable|integer|exists:stunden,id'
         ];
+
+        // TODO: check if start_time & end_time are the correct for the sws of the kurs
 
         $validator = Validator::make($timetableState, $rules);
 
@@ -118,7 +147,18 @@ class StundenController extends Controller
             $changesDetected = true;
         }
 
-        // TODO: set dozent plan_abgegeben to 0
+        // check if dozent has any stunden -> set plan_abgegeben to 0 -> else set to null
+        $dozent = Auth::user()->dozent;
+        $stundenCount = $dozent->kurse->pluck('stunden')->collapse()->count();
+
+        if ($dozent->plan_abgegeben !== 1) {
+            if ($stundenCount > 0) {
+                $dozent->plan_abgegeben = 0;
+            } else {
+                $dozent->plan_abgegeben = null;
+            }
+            $dozent->save();
+        }
 
         if ($changesDetected) {
             return response()->json([
@@ -158,9 +198,27 @@ class StundenController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(): View|RedirectResponse
     {
-        //
+        // get all stunden of the kurse of the current dozent
+        $dozent = Auth::user()->dozent;
+
+        // check if dozent has plan_abgegeben
+        if ($dozent->plan_abgegeben === 1) {
+            return redirect()->route('stundenplan.my')->with('error', 'Der Stundenplan wurde bereits abgegeben und kann nicht mehr bearbeitet werden.');
+        }
+
+        $stunden = $dozent->load('kurse.stunden')->kurse->pluck('stunden')->collapse();
+
+        // format block_start and block_end to HH:mm
+        foreach ($stunden as $stunde) {
+            $stunde->block_start = date('H:i', strtotime($stunde->block_start));
+            $stunde->block_end = date('H:i', strtotime($stunde->block_end));
+        }
+
+        $days = $this->days;
+        $hours_pairs = array_map(null, $this->start_times, $this->end_times);
+        return view('stundenplan.plan_edit', compact('days', 'hours_pairs', 'stunden'));
     }
 
     /**
@@ -197,5 +255,32 @@ class StundenController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function submitTimetable(int $mode): RedirectResponse
+    {
+        // mode: 1 to submit, 0 to unsubmit
+
+        if ($mode !== 0 && $mode !== 1) {
+            return redirect()->route('stundenplan.my')->with('error', 'Fehler beim Abgeben des Stundenplans.');
+        }
+
+        $dozent = Auth::user()->dozent;
+
+        if ($mode === 1) {
+            // check if each kurs of the dozent has at least one stunde
+            foreach ($dozent->kurse as $kurs) {
+                if ($kurs->stunden->count() === 0) {
+                    return redirect()->route('stundenplan.my')->with('error', 'Der Stundenplan kann nicht abgegeben werden, da nicht für jeden Kurs mindestens eine Stunde eingetragen wurde.');
+                }
+            }
+
+            $dozent->plan_abgegeben = true;
+        } else {
+            $dozent->plan_abgegeben = false;
+        }
+        $dozent->save();
+
+        return redirect()->route('stundenplan.my')->with('success', 'Stundenplan erfolgreich abgegeben.');
     }
 }

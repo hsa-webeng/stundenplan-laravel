@@ -9,6 +9,31 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center p-2 mb-6 doz_status">
+                {{-- display counts of how many dozenten have which status --}}
+                @php
+                    $users_with_d_id = $users_dozenten->where('u_id', '!=', null)->where('d_id', '!=', null);
+                    $total_users_doz = $users_with_d_id->count();
+
+                    $abgegeben = 0;
+                    $in_arbeit = 0;
+                    $nicht_abgegeben = 0;
+
+                    foreach ($users_with_d_id as $user) {
+                        if ($user['plan_abgegeben'] === 1) {
+                            $abgegeben++;
+                        } elseif ($user['plan_abgegeben'] === 0) {
+                            $in_arbeit++;
+                        } else {
+                            $nicht_abgegeben++;
+                        }
+                    }
+                @endphp
+
+                <p class="font-bold px-4"><strong class="text-green-600">&#x2B24; Abgegeben</strong>: {{ $abgegeben }} / {{ $total_users_doz }}</p>
+                <p class="font-bold px-4"><strong class="text-yellow-600">&#x2B24; In Arbeit</strong>: {{ $in_arbeit }} / {{ $total_users_doz }}</p>
+                <p class="font-bold px-4"><strong class="text-red-600">&#x2B24; Nicht abgegeben</strong>: {{ $nicht_abgegeben }} / {{ $total_users_doz }}</p>
+            </div>
             <div class="table_background">
                 <table class="ausgabe-admin">
                     <thead class="ausgabe-user-head">
@@ -66,11 +91,11 @@
                                 <div class="flex h-full items-center gap-3">
                                     {{-- If selected is a dozent but has no user --}}
                                     @if (is_null($user->u_id) && $user->d_id)
-                                        <a href="{{ route('users.edit', [$user->d_id, 2]) }}">
+                                        <x-secondary-button-link @class(["admin-users-action"]) href="{{ route('users.edit', [$user->d_id, 2]) }}">
                                             <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten">
-                                        </a>
+                                        </x-secondary-button-link>
 
-                                        <x-danger-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion-d-{{ $user->d_id }}')">
+                                        <x-danger-button @class(["admin-users-danger"]) x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion-d-{{ $user->d_id }}')">
                                             <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen">
                                         </x-danger-button>
                                         <x-modal name="confirm-user-deletion-d-{{ $user->d_id }}" :show="$errors->userDeletion->isNotEmpty()" focusable>
@@ -107,21 +132,29 @@
                                         {{-- If selected is a user (and a dozent) --}}
                                     @elseif($user->u_id)
                                         @if ($user->d_id)
-                                            <a href="{{ route('users.edit', [$user->u_id, 0]) }}">
+                                            <x-secondary-button-link @class(["admin-users-action"]) href="{{ route('users.edit', [$user->u_id, 0]) }}">
                                                 <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' bearbeiten">
+                                            </x-secondary-button-link>
                                         @else
-                                            <a href="{{ route('users.edit', [$user->u_id, 1]) }}">
+                                            <x-secondary-button-link @class(["admin-users-action"]) href="{{ route('users.edit', [$user->u_id, 1]) }}">
                                                 <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $user->name }}' bearbeiten" alt="'{{ $user->name }}' bearbeiten">
+                                            </x-secondary-button-link>
                                         @endif
-                                        </a>
 
-                                        <x-danger-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion-{{ $user->u_id }}')">
+                                        <x-danger-button @class(["admin-users-danger"]) x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion-{{ $user->u_id }}')">
                                             @if ($user->d_id)
                                                 <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen" alt="'{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}' löschen">
                                             @else
                                                 <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $user->name }}' löschen" alt="'{{ $user->name }}' löschen">
                                             @endif
                                         </x-danger-button>
+
+                                        @if ($user->d_id)
+                                            <x-secondary-button-link @class(["admin-users-action"]) href="{{ route('stundenplan.show_doz', [0, $user->d_id]) }}">
+                                                <img class="admin-users-icons" src="{{ route('image.show', 'noun-calendar-5490924.svg') }}" title="Stundenplan von '{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}'" alt="Stundenplan von '{{ $user->dozent_nachname }}, {{ $user->dozent_vorname}}'">
+                                            </x-secondary-button-link>
+                                        @endif
+
                                         <x-modal name="confirm-user-deletion-{{ $user->u_id }}" :show="$errors->userDeletion->isNotEmpty()" focusable>
                                             <form method="post" action="{{ route('users.destroy', $user->u_id) }}" class="p-6">
                                                 @csrf
