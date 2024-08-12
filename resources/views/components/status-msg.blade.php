@@ -6,7 +6,7 @@
             </ul>
         </div>
     @elseif (Session::has('error'))
-        <div class="alert alert-danger max-w-7xl sm:mx-6 lg:mx-8 w-full">
+        <div class="alert alert-error max-w-7xl sm:mx-6 lg:mx-8 w-full">
             <ul>
                 <li>{{ Session::get('error') }}</li>
             </ul>

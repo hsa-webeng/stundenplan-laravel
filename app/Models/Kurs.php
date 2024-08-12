@@ -33,6 +33,6 @@ class Kurs extends Model
 
     public function stunden(): HasMany
     {
-        return $this->hasMany(Stunde::class);
+        return $this->hasMany(Stunde::class, 'kurs_id');
     }
 }

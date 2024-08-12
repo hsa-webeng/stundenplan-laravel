@@ -15,10 +15,6 @@ use App\Http\Controllers\UserDozController;
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');})
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -98,14 +94,44 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/users', [UserDozController::class, 'index'])->name('users.index');
     Route::get('/kurse', [KursController::class, 'index'])->name('kurse.index');
     Route::get('/studiengänge', [StudiengangController::class, 'index'])->name('studiengänge.index');
+
+
+    Route::get('/stundenplan/{mode}/{id}', [StundenController::class, 'index'])
+        ->where(['id' => '[0-9]+' , 'mode' => '0'])
+        ->name('stundenplan.show_doz');
 });
 
 Route::middleware(['auth', DozentMiddleware::class])->group(function () {
     /**
      * Show stundenplan of current dozent
      */
-    Route::get('/stundenplan', [StundenController::class, 'index'])
-        ->name('stundenplan.show');
+    Route::get('/stundenplan/my', [StundenController::class, 'index'])
+        ->name('stundenplan.my');
+
+    Route::get('/stundenplan/my/edit', [StundenController::class, 'edit'])
+        ->name('stundenplan.edit');
+
+    Route::post('/stundenplan/my/save', [StundenController::class, 'parseTimetableJson'])
+        ->name('stundenplan.save');
+
+    Route::get('/stundenplan/my/submit/{mode}', [StundenController::class, 'submitTimetable'])
+        ->name('stundenplan.submit');
 });
+
+// routes only open to admins and or dozenten
+Route::middleware('auth')->group(function () {
+    /**
+     * Show timetable
+     * (mode: 0 for dozent, 1 for studiengang)
+     */
+    Route::get('/stundenplan/{mode}/{id}/{semester}', [StundenController::class, 'index'])
+        ->where(['id' => '[0-9]+', 'semester' => '[0-9]+' , 'mode' => '[1]'])
+        ->name('stundenplan.show_sem');
+
+
+    Route::get('/dashboard', [HomeController::class, 'dashboard'])
+        ->name('dashboard');
+});
+
 
 require __DIR__.'/auth.php';

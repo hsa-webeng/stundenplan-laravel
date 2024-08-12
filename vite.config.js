@@ -7,6 +7,10 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/timetable_crud.js',
+                'resources/css/timetable_crud.css',
+                'resources/js/timetable_show.js',
+                'resources/css/timetable_show.css',
             ],
             refresh: true,
         }),

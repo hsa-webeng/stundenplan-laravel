@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('stunden', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kurs_id')->constrained('kurse')->cascadeOnDelete();
-            $table->integer('wochentag'); // 1 = Montag, 2 = Dienstag, ..., 7 = Sonntag
+            $table->integer('wochentag'); // 0 = Montag, 1 = Dienstag, ..., 5 = Samstag
             $table->time('block_start'); // Stundenbeginn
             $table->time('block_end'); // Stundenende
             $table->timestamps();

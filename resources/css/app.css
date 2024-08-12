@@ -15,15 +15,16 @@
 /*----------------------------------------------------Admin Pages----------------------------------------------------*/
 
 /*------------------------Admin Tables-------------------------------*/
-.table_background{
+
+.table_background {
     display: flex;
-    background-color: white;
+    background-color: #ffffff;
     box-shadow: 0 0 10px rgba(114, 114, 113, 0.5);
-    border-radius: 15px;
+    border-radius: 1rem;
     width: 100%;
 }
 
-.ausgabe-admin th, .ausgabe-admin td{
+.ausgabe-admin th, .ausgabe-admin td {
     text-align: left;
     padding-left: 1rem;
     padding-right: 1rem;
@@ -34,11 +35,11 @@
     font-style: normal;
     border-collapse: collapse;
     width: 100%;
-    border-radius: 15px;
+    border-radius: 1rem;
     overflow: hidden;
 }
 
-.ausgabe-admin th{
+.ausgabe-admin th {
     text-transform: uppercase;
     padding-top: 0.4rem;
     padding-bottom: 0.4rem;
@@ -59,7 +60,7 @@
     color: white;
 }
 
-.ausgabe-admin td{
+.ausgabe-admin td {
     padding-top: .9rem;
     padding-bottom: .9rem;
 }
@@ -112,17 +113,28 @@
 }
 
 .admin-users-icons {
+    box-sizing: content-box;
     width: 1.3rem;
     height: 1.3rem;
     opacity: 0.75;
-    transition: .1s;
+    transition: .2s;
+    padding: .5rem 1rem;
 }
 
 .admin-users-icons:hover,
 .admin-users-icons:focus-within {
     transform: scale(1.2);
     opacity: 1;
-    transition: .1s;
+    transition: .2s;
+}
+
+.admin-users-danger,
+.admin-users-action {
+    padding: 0 !important;
+}
+
+.admin-users-danger .admin-users-icons {
+    opacity: 1;
 }
 
 /*------------------------Admin Details-------------------------------*/
@@ -150,216 +162,80 @@
     margin-bottom: 10px;
     transition: .1s;
 }
+/*----------------------------------------------------General Pages----------------------------------------------------*/
 
-/*------------------------Admin Alters-------------------------------*/
+.doz_status {
+    background-color: #ececec;
+    border-radius: 1rem;
+}
+
+/*------------------------Alerts-------------------------------*/
 
 .alert {
     padding: 1rem;
     border-radius: 0.5rem;
     margin-top: 1.5rem;
-    display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 3px 10px rgba(114, 114, 113, 0.4);
 }
 
-.alert-danger {
+.alert-error {
     background-color: var(--red);
-    color: white;
+    color: #ffffff;
+    display: flex !important;
 }
 
 .alert-success {
     background-color: var(--green);
-    color: black;
+    color: #000000;
+    display: flex !important;
 }
 
 .alert-info {
     background-color: var(--blue);
-    color: white;
+    color: #ffffff;
+    display: flex !important;
 }
 
-/*----------------------------------------------------Stundenplan----------------------------------------------------*/
-.timetable_page {
-    display: grid;
-    grid-template-columns: 25% 75%;
-}
+/*------------------------Dashboard-------------------------------*/
 
-.timetable_page:first-of-type {
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.sidebar {
-    box-shadow: 0 0 10px rgba(114, 114, 113, 0.5);
-    border-radius: 2rem;
-    padding: 1rem;
-    margin-right: 1em;
-    background-color: white;
-    display: inline-block;
-    height: fit-content;
-}
-
-.sidebar_header {
-    padding: 0 .9rem;
-    display: flex;
-    justify-content: space-between;
-}
-
-.sidebar_courses {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: .75rem .75rem 0;
-}
-
-.subject {
-    padding: .75rem;
-    margin: 1rem 0;
+.db_card {
+    display: block;
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(114, 114, 113, 0.3);
     border-radius: 1rem;
-    background-color: var(--green);
-    cursor: pointer;
-    position: relative;
-    box-shadow: 0 2px 0 var(--green_bg);
-    z-index: 4;
-}
-
-.subject[draggable="false"] {
-    cursor: default;
-}
-
-.sidebar_courses .subject[draggable="false"] {
-    opacity: 0.6;
-}
-
-.subject[draggable="false"]::after {
-    display: none;
-}
-
-.subject::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    top: 0;
-    left: 50%;
-    height: 0;
-    border-radius: 0 0 1rem 1rem;
-    background-color: var(--blue);
-    transition: .1s;
-}
-
-.subject:hover::after,
-.subject:focus-within::after {
-    width: 70%;
-    left: 15%;
-    height: .3rem;
-    transition: .1s;
-}
-
-.dropped-subject {
-    width: 98%;
-    height: fit-content;
-    padding: .75rem;
-    margin: 0 1%;
-    border-radius: 0;
-    background-color: var(--blue_bg);
-    box-shadow: none;
-    z-index: 3;
-    cursor: pointer;
-}
-
-.dropped-subject::after {
-    background-color: var(--blue);
-}
-
-.dropped-subject p {
-    width: 105%;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.timetable {
-    height: 100%;
-    background-color: #fff;
-    display: inline-block;
-    border-radius: 2rem;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(114, 114, 113, 0.5);
-}
-
-.timetable_content {
     width: 100%;
-    border-collapse: collapse;
+    padding: 1rem;
 }
 
-.timetable_content th,
-.timetable_content td {
-    border: 2px solid #838383;
-    padding: .7rem;
-    text-align: center;
-    position: relative;
-    max-width: 40px;
+.db_card h2 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    font-weight: 500;
 }
 
-.timetable_content .timetable_data:empty {
-    padding: .7rem;
+.db_shortcut_cont {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 1rem;
+    width: fit-content;
 }
 
-.timetable_content .timetable_data {
-    padding: 0;
+.db_shortcut_icon {
+    filter: invert(1);
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 1rem;
 }
 
-.timetable_content .timetable_time {
+.db_stdgs {
     background-color: var(--blue_bg);
-    border-color: #575757;
+    width: 100%;
 }
-
-.timetable_content th {
-    border-top: none;
+.db_stdgs[open] summary {
     background-color: var(--blue);
     color: white;
-    border-color: #575757;
 }
 
-.hovered {
-    background-color: var(--green_bg);
-}
-
-/*
- * remove outer borders
- */
-.timetable_content th:first-of-type,
-.timetable_content th:last-of-type,
-.timetable_content td:first-of-type,
-.timetable_content td:last-of-type {
-    border-left: none;
-    border-right: none;
-}
-
-.timetable_content tr:last-of-type td {
-    border-bottom: none;
-}
-
-.timetable_content td {
-    height: 6.4rem;
-    position: relative;
-}
-
-.color-1 {
-    background-color: var(--green);
-    color: black;
-}
-
-.color-2 {
-    background-color: var(--orange);
-    color: black;
-}
-
-.color-3 {
-    background-color: var(--red);
-    color: white;
-}
-
-.color-4 {
-    background-color: var(--purple);
-    color: white;
-}

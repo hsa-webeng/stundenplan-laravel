@@ -34,7 +34,7 @@
                         {{-- Semesterwochenstunden (SWS) --}}
                         <div class="mt-4">
                             <x-input-label for="sws" :value="__('SWS')" />
-                            <x-text-input id="sws" class="block mt-1 w-full" type="number" name="sws" :value="old('sws', $kurs->sws ?? '')" min="1" max="10" required autocomplete="sws" />
+                            <x-text-input id="sws" class="block mt-1 w-full" type="number" name="sws" :value="old('sws', $kurs->sws ?? '')" min="2" max="12" step="2" required autocomplete="sws" />
                             <x-input-error :messages="$errors->get('sws')" class="mt-2" />
                         </div>
 

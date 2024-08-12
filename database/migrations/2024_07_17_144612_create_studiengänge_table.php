@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('studiengänge', function (Blueprint $table) {
             $table->id();
-            $table->string('stdg_kürzel');
-            $table->string('stdg_name');
+            $table->string('stdg_kürzel')->unique();
+            $table->string('stdg_name')->unique();
             $table->timestamps();
         });
     }

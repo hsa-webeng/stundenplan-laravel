@@ -31,8 +31,8 @@ class StudiengangController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'stdg_name' => ['required', 'string', 'max:255'],
-            'stdg_short' => ['required', 'string', 'max:5'],
+            'stdg_name' => ['required', 'string', 'max:255', 'unique:studiengänge,stdg_name'],
+            'stdg_short' => ['required', 'string', 'max:5', 'unique:studiengänge,stdg_kürzel'],
         ]);
 
         Studiengang::create([
@@ -66,8 +66,8 @@ class StudiengangController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'stdg_name' => ['required', 'string', 'max:255'],
-            'stdg_short' => ['required', 'string', 'max:5'],
+            'stdg_name' => ['required', 'string', 'max:255', 'unique:studiengänge,stdg_name,' . $id],
+            'stdg_short' => ['required', 'string', 'max:5', 'unique:studiengänge,stdg_kürzel,' . $id],
         ]);
 
         $studiengang = Studiengang::findOrFail($id);

@@ -29,11 +29,11 @@
                             </td>
                             <td>
                                 <div class="flex h-full items-center gap-3">
-                                    <a href="{{ route('stdgs.edit', $studiengang->id) }}">
+                                    <x-secondary-button-link @class(["admin-users-action"]) href="{{ route('stdgs.edit', $studiengang->id) }}">
                                         <img class="admin-users-icons" src="{{ route('image.show', 'noun-edit-1047822.svg') }}" title="'{{ $studiengang->stdg_name }}' bearbeiten" alt="'{{ $studiengang->stdg_name }}' bearbeiten">
-                                    </a>
+                                    </x-secondary-button-link>
 
-                                    <x-danger-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-course-deletion-d-{{ $studiengang->id }}')">
+                                    <x-danger-button @class(["admin-users-danger"]) x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-course-deletion-d-{{ $studiengang->id }}')">
                                         <img class="admin-users-icons" src="{{ route('image.show', 'noun-trash-2025467.svg') }}" title="'{{ $studiengang->stdg_name }}' löschen" alt="'{{ $studiengang->stdg_name }}' löschen">
                                     </x-danger-button>
                                     <x-modal name="confirm-course-deletion-d-{{ $studiengang->id }}" :show="$errors->userDeletion->isNotEmpty()" focusable>
