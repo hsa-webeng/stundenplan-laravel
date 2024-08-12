@@ -1,4 +1,4 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://github.com/hsa-webeng/stundenplan-laravel/blob/0d8a6a29ba056a1f9c51ee8996df0c123b801511/storage/app/public/images/logo.svg" width="200" alt="Stundenplaner - HS Ansbach Logo"></a></p>
+<p align="center"><img src="https://github.com/hsa-webeng/stundenplan-laravel/blob/0d8a6a29ba056a1f9c51ee8996df0c123b801511/storage/app/public/images/logo.svg" width="200" alt="Stundenplaner - HS Ansbach Logo"></p>
 
 <h1 align="center">
   Stundenplaner - HS Ansbach
