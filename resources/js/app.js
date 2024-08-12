@@ -8,6 +8,45 @@ Alpine.start();
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    const alertInfoBox = document.getElementById('alert-cont');
+    const alertInfoText = document.getElementById('alert-text');
+    let alertTimeout;
+    hideAlert();
+
+    /**
+     * Show an alert message.
+     * @param {string} message
+     * @param {string} type
+     */
+    function showAlert(message, type) {
+        if (alertInfoText && alertInfoBox) {
+            console.log(message, type);
+
+            if (type !== 'error' && type !== 'success' && type !== 'info') {
+                type = 'info';
+            }
+
+            clearTimeout(alertTimeout);
+
+            alertInfoBox.classList.remove('alert-error', 'alert-success', 'alert-info', 'hidden');
+            alertInfoBox.classList.add(`alert-${type}`);
+            alertInfoText.textContent = message;
+
+            // hide the alert after timeout
+            alertTimeout = setTimeout(() => {
+                hideAlert();
+            }, 7500);
+        }
+    }
+
+    function hideAlert() {
+        if (alertInfoBox && alertInfoText) {
+            alertInfoBox.classList.remove('alert-error', 'alert-success', 'alert-info');
+            alertInfoBox.classList.add('hidden');
+            alertInfoText.textContent = '';
+        }
+    }
+
     /*
      * -------- TIMETABLE DRAG AND DROP --------
      */
@@ -26,9 +65,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let colorAssignments = {};
 
-        // make each subject draggable.
+        // update timetable state on page load
+        updateTimetableState();
+
+        // reassign colors on page load
+        reassignAllColors();
+
+        // make each subject draggable
         subjects.forEach(subject => {
-            makeDraggable(subject);
+            // if the sidebar subject is not already in the timetable or subject is in the timetable but not a clone
+            if (!checkIfSubjectIsInTimetable(subject.dataset.subjectId) || (subject.classList.contains('dropped-subject') && !subject.classList.contains('cloned'))) {
+                makeDraggable(subject);
+            }
         });
 
         // add drag and drop event listeners to each timetable cell
@@ -117,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function dragDrop(event) {
             event.preventDefault();
             const subjectLength = parseFloat(event.dataTransfer.getData('length'));
-            const { startTime, endTime, day } = getTimeAndDayFromCell(this, subjectLength);
+            const {startTime, endTime, day} = getTimeAndDayFromCell(this, subjectLength);
 
             // check if the subject is already in the timetable
             const isSubjectInTimetable = checkIfSubjectIsInTimetable(draggedSubject.dataset.subjectId);
@@ -184,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 reassignAllColors();
+                updateTimetableState();
             }
 
             this.classList.remove('hovered');
@@ -255,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const startTimeText = row.querySelector('td:first-child').textContent.split(' - ')[0];
             const endTimeText = calculateEndTime(startTimeText, length);
             const day = cellIndex - 1;
-            return { startTime: startTimeText, endTime: endTimeText, day };
+            return {startTime: startTimeText, endTime: endTimeText, day};
         }
 
         /**
@@ -265,6 +314,10 @@ document.addEventListener('DOMContentLoaded', () => {
          * @returns {string} - The end time of the subject.
          */
         function calculateEndTime(startTime, length) {
+
+            // TODO: this calculation is not correct for all cases
+            //  (e.g. with length 3 and start time 11:45 -> should be 17.30, but is 16.45)
+
             const [startHour, startMinute] = startTime.split(':').map(Number);
 
             let additionalMinutes = 0;
@@ -310,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // reassign colors for all courses
             reassignAllColors();
+            updateTimetableState();
         }
 
         /**
@@ -484,5 +538,70 @@ document.addEventListener('DOMContentLoaded', () => {
             // remove duplicates (in case of multi-cell subjects)
             return Array.from(new Set(conflictingCourses));
         }
+
+        /*
+         * -------- TIMETABLE DATA COLLECTION --------
+         */
+
+        function getTimetableState() {
+            const timetableState = [];
+            const droppedSubjects = document.querySelectorAll('.timetable .dropped-subject:not(.cloned)');
+
+            droppedSubjects.forEach(subject => {
+                const cell = subject.closest('td');
+                const day = cell.cellIndex - 1; // Subtract 1 because the first column is for time
+                const startTime = cell.dataset.time;
+                const endTime = subject.dataset.endTime;
+                const kursId = subject.dataset.subjectId;
+
+                if (subject.dataset.stundeId) {
+                    const stundeId = subject.dataset.stundeId;
+                    timetableState.push({
+                        kurs_id: kursId,
+                        day: day,
+                        start_time: startTime,
+                        end_time: endTime,
+                        stunde_id: stundeId
+                    });
+                } else {
+                    timetableState.push({
+                        kurs_id: kursId,
+                        day: day,
+                        start_time: startTime,
+                        end_time: endTime
+                    });
+                }
+            });
+
+            return timetableState;
+        }
+
+        function updateTimetableState() {
+            const state = getTimetableState();
+            document.getElementById('timetableState').value = JSON.stringify(state);
+        }
+
+        document.getElementById('timetableForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    showAlert(data.message, data.type);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Fehler beim Speichern des Stundenplans.', 'error');
+                });
+        });
     }
 });

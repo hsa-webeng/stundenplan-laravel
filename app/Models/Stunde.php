@@ -12,6 +12,13 @@ class Stunde extends Model
 
     protected $table = 'stunden';
 
+    protected $fillable = [
+        'kurs_id',
+        'wochentag',
+        'block_start',
+        'block_end'
+    ];
+
     public function kurs(): BelongsTo
     {
         return $this->belongsTo(Kurs::class, 'kurs_id');

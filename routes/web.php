@@ -106,6 +106,9 @@ Route::middleware(['auth', DozentMiddleware::class])->group(function () {
      */
     Route::get('/stundenplan', [StundenController::class, 'index'])
         ->name('stundenplan.show');
+
+    Route::post('/stundenplan-speichern', [StundenController::class, 'parseTimetableJson'])
+        ->name('stundenplan.save');
 });
 
 require __DIR__.'/auth.php';
